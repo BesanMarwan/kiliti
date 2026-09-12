@@ -1,0 +1,199 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Base General API swagger documentation",
+        "description": "Base General API Documentation",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "email": "besanmarwan2000@gmail.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/v1/app/get_configuration": {
+            "get": {
+                "tags": [
+                    "GeneralApiSection"
+                ],
+                "summary": "Get configrations API",
+                "description": "Get configrations service",
+                "operationId": "getConfiguration",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralDataResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/app/get_dialysis_centers": {
+            "get": {
+                "tags": [
+                    "GeneralApiSection"
+                ],
+                "summary": "Get Dialysis Centers API",
+                "description": "Get Dialysis Centers Objects",
+                "operationId": "get_dialysis_centers",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    },
+                    {
+                        "parameter": "name",
+                        "name": "name",
+                        "in": "query",
+                        "description": "search of name center",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation with status = true "
+                    }
+                }
+            }
+        },
+        "/api/v1/app/page/{page_id}": {
+            "get": {
+                "tags": [
+                    "PagesApiSection"
+                ],
+                "summary": "Get Static Pages API",
+                "description": "Get Pages service : Conditions id = 1 or Privacy Policy id = 2 or Feed back id = 3",
+                "operationId": "pages",
+                "parameters": [
+                    {
+                        "name": "page_id",
+                        "in": "path",
+                        "description": "page_id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/language"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation with status = true"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "GeneralDataResource": {
+                "title": "GeneralDataResource",
+                "properties": {
+                    "id": {
+                        "description": "id",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "description": "name",
+                        "type": "string"
+                    },
+                    "image": {
+                        "description": "image",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "parameters": {
+            "language": {
+                "name": "language",
+                "in": "header",
+                "description": "response language : ar for arabic || en for english",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                },
+                "examples": {
+                    "ar": {
+                        "summary": "Arabic",
+                        "value": "ar"
+                    },
+                    "en": {
+                        "summary": "English",
+                        "value": "en"
+                    }
+                }
+            },
+            "device_key": {
+                "name": "device_key",
+                "in": "header",
+                "description": "mobile device key used for firebase notifications",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "device_name": {
+                "name": "device_name",
+                "in": "header",
+                "description": "user device name",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "device_type": {
+                "name": "device_type",
+                "in": "header",
+                "description": "user device type android or ios",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                }
+            }
+        },
+        "securitySchemes": {
+            "api_key": {
+                "type": "apiKey",
+                "description": "send Bearer token",
+                "name": "Authorization",
+                "in": "header",
+                "scheme": "Bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "GeneralApiSection",
+            "description": "GeneralApiSection"
+        },
+        {
+            "name": "PagesApiSection",
+            "description": "PagesApiSection"
+        }
+    ],
+    "security": [
+        {
+            "api_key": []
+        }
+    ]
+}

@@ -1,0 +1,119 @@
+.fv-plugins-bootstrap5 .row .fv-plugins-icon {
+    left: 12px;
+    right: auto;
+}
+.fv-plugins-bootstrap5:not(.fv-plugins-bootstrap5-form-inline) label~.fv-plugins-icon {
+    top: 32px;
+    left: 0;
+    right: auto;
+}
+.stepper.last [data-kt-stepper-action="next"] {
+    display: none;
+}
+.dropzone.dz-clickable .dz-message, .dropzone.dz-clickable .dz-message * {
+    text-align: right;
+}
+.dropzone{
+    min-height: 190px;
+    display: flex;
+    align-content: center;
+    align-items: center;
+}
+.select2-container--bootstrap5 .select2-selection__clear {
+    display: block;
+    height: .7rem;
+    width: .7rem;
+    top: 50%;
+    left: 3rem;
+    right: auto;
+    position: absolute;
+    transform: translateY(-50%);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%235E6278'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.has-load[disabled=true]>.indicator-progress{display:inline-block}.has-load[disabled=true]>.indicator-label{display:none}
+.wire-loading{
+    position: absolute;
+    left: 15px;
+    top: 40px;
+    display: none;
+    background: #f5f8fa;
+}
+.custom_show{
+    display: block;
+}
+.relative{
+    position: relative;
+}
+.daterangepicker .drp-selected {
+    font-size: .9rem;
+    direction: rtl;
+}
+
+.map-con {
+    height: 100%;
+    min-height: 400px;
+}
+
+.cars_view .imgs_edit{
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 10px;
+    align-content: center;
+
+}
+.cars_view .imgs_edit img{
+    width: 100px;
+
+}
+.cars_view .imgs_edit .del_from_here{
+    position: relative;
+    margin: 5px;
+    padding: 5px;
+}
+.cars_view .imgs_edit .btn_del_html{
+    position: absolute;
+    top: 0;
+    left: 0;
+    border: 0;
+    background: transparent;
+}
+.cars_view .imgs_edit .btn_del_html i{
+    font-size: 16px;
+    color: darkred;
+}
+.cars_view .property_item{
+    display: flex;
+    justify-content: start;
+    align-content: center;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    width: 49%;
+    padding: 10px 5px;
+}
+.cars_view .properties_con {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+}
+
+.cars_view .property_item .input-con{
+    display: none;
+}
+.cars_view .property_item.selected{
+    border: 1px solid #7dbe6f;
+}
+.cars_view .property_item.selected .input-con{
+    display: block;
+}
+.to_hide {
+    display: none !important;
+
+}
+

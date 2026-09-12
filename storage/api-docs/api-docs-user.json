@@ -1,0 +1,1422 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Base User API swagger documentation",
+        "description": "My College User API Documentation",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "email": "besanmarwan2000@gmail.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/v1/user/verify_code": {
+            "post": {
+                "tags": [
+                    "AuthanticationApiSection"
+                ],
+                "summary": "verify login code",
+                "description": "Activate User account service returns user object in case of success",
+                "operationId": "apiValidateMobile",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/VerifyCode"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Mobile Verified",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation error"
+                    }
+                }
+            }
+        },
+        "/api/v1/user/resend_verify_code": {
+            "post": {
+                "tags": [
+                    "AuthanticationApiSection"
+                ],
+                "summary": "resend verify code",
+                "description": "User resend verify code",
+                "operationId": "resend verify code",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "schema": "resend_verify_code",
+                                "required": [
+                                    "mobile"
+                                ],
+                                "properties": {
+                                    "mobile": {
+                                        "description": "mobile",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "451": {
+                        "description": "Not verified : User need confirm mobile",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error"
+                    }
+                }
+            }
+        },
+        "/api/v1/user/login": {
+            "post": {
+                "tags": [
+                    "AuthanticationApiSection"
+                ],
+                "summary": "User login API",
+                "description": "User login service returns user object",
+                "operationId": "login",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_key"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_name"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_type"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserLoginRegister"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "451": {
+                        "description": "Not verified : User need confirm mobile",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/user/register_initial": {
+            "post": {
+                "tags": [
+                    "AuthanticationApiSection"
+                ],
+                "summary": "User  register initial API ",
+                "description": "User register service returns user object",
+                "operationId": "register_init",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_key"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_name"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_type"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterInitial"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation with status = true and user object"
+                    },
+                    "422": {
+                        "description": "status = true : User not activated || status = false : User not found or password is not correct"
+                    }
+                }
+            }
+        },
+        "/api/v1/user/register_personal": {
+            "post": {
+                "tags": [
+                    "AuthanticationApiSection"
+                ],
+                "summary": "User  register personal API ",
+                "description": "User register personal returns user object",
+                "operationId": "register_personal",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_key"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_name"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_type"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterPersonal"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation with status = true and user object"
+                    },
+                    "422": {
+                        "description": "status = true : User not activated || status = false : User not found or password is not correct"
+                    }
+                }
+            }
+        },
+        "/api/v1/user/register_medical_info": {
+            "post": {
+                "tags": [
+                    "AuthanticationApiSection"
+                ],
+                "summary": "User  register medical info API ",
+                "description": "User register medical info returns user object",
+                "operationId": "register_medical_info",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_key"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_name"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_type"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterMedicalInfo"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation with status = true and user object"
+                    },
+                    "422": {
+                        "description": "status = true : User not activated || status = false : User not found or password is not correct"
+                    }
+                }
+            }
+        },
+        "/api/v1/user/register_center_info": {
+            "post": {
+                "tags": [
+                    "AuthanticationApiSection"
+                ],
+                "summary": "User  register medical info API ",
+                "description": "User register medical info returns user object",
+                "operationId": "register_center_info",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_key"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_name"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_type"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterCenterInfo"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation with status = true and user object"
+                    },
+                    "422": {
+                        "description": "status = true : User not activated || status = false : User not found or password is not correct"
+                    }
+                }
+            }
+        },
+        "/api/v1/user/register_doctor_info": {
+            "post": {
+                "tags": [
+                    "AuthanticationApiSection"
+                ],
+                "summary": "User  register doctor info API ",
+                "description": "User register doctor info returns user object",
+                "operationId": "register_doctor_info",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_key"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_name"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_type"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterDoctorInfo"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation with status = true and user object"
+                    },
+                    "422": {
+                        "description": "status = true : User not activated || status = false : User not found or password is not correct"
+                    }
+                }
+            }
+        },
+        "/api/v1/user/register_family_info": {
+            "post": {
+                "tags": [
+                    "AuthanticationApiSection"
+                ],
+                "summary": "User  register family member info API ",
+                "description": "User register  family member info returns user object",
+                "operationId": "register_family_info",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_key"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_name"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_type"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterFamilyInfo"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation with status = true and user object"
+                    },
+                    "422": {
+                        "description": "status = true : User not activated || status = false : User not found or password is not correct"
+                    }
+                }
+            }
+        },
+        "/api/v1/user/update_profile": {
+            "post": {
+                "tags": [
+                    "AuthanticationApiSection"
+                ],
+                "summary": "User login API",
+                "description": "User login service returns user object",
+                "operationId": "update profile",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateProfileRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "451": {
+                        "description": "Not verified : User need confirm mobile",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/forget_password": {
+            "post": {
+                "tags": [
+                    "AuthanticationApiSection"
+                ],
+                "summary": "forget password API",
+                "description": "forget password api ;;; this api use with three senarios 1. send the mobile only to send the code 2. send the mobile with the code to check if the code is valid (optional) 3. send the mobile with the code and the new password to change the password",
+                "operationId": "forgetPassword",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "schema": "forget_password",
+                                "required": [
+                                    "mobile"
+                                ],
+                                "properties": {
+                                    "mobile": {
+                                        "description": "user mobile must send in every scenario",
+                                        "type": "string"
+                                    },
+                                    "code": {
+                                        "description": "the forget check code must send to check if the code valid or to change the password",
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "description": "the new password must send with the code and mobile to change the password",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/components/schemas/UserResource"
+                                        },
+                                        {
+                                            "type": "boolean"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "code expired , code wrong"
+                    },
+                    "404": {
+                        "description": "user not found"
+                    }
+                }
+            }
+        },
+        "/api/v1/user/update_fcm_token": {
+            "post": {
+                "tags": [
+                    "NotificationsApiSection"
+                ],
+                "summary": "update FCM token",
+                "description": "Update fcm token for not authenticated device (no user)",
+                "operationId": "Update_fcm_token",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "token"
+                                ],
+                                "properties": {
+                                    "token": {
+                                        "description": "FCM token",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation with status = true and user object"
+                    },
+                    "422": {
+                        "description": "status = false : unauthorized user"
+                    }
+                }
+            }
+        },
+        "/api/v1/user/update_user_fcm_token": {
+            "post": {
+                "tags": [
+                    "NotificationsApiSection"
+                ],
+                "summary": "User update FCM token",
+                "description": "Update fcm token for authenticated user (login required)",
+                "operationId": "updateUserFcmToken",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "token"
+                                ],
+                                "properties": {
+                                    "token": {
+                                        "description": "FCM token",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation with status = true and user object"
+                    },
+                    "422": {
+                        "description": "status = false : unauthorized user"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/get_user_notifications": {
+            "get": {
+                "tags": [
+                    "NotificationsApiSection"
+                ],
+                "summary": "Get user notifications API",
+                "description": "Get user notifications service",
+                "operationId": "getUserNotifications",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation with status = true and notifications array of objects"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/delete_notification": {
+            "post": {
+                "tags": [
+                    "NotificationsApiSection"
+                ],
+                "summary": "delete user notification using notification id",
+                "description": "delete user notification using notification id service",
+                "operationId": "DeleteUserNotification",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "notification_id"
+                                ],
+                                "properties": {
+                                    "notification_id": {
+                                        "description": "deletable notification id",
+                                        "type": "number"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation with status = true along with message"
+                    },
+                    "422": {
+                        "description": "notification not found"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/me": {
+            "get": {
+                "tags": [
+                    "UserApiSection"
+                ],
+                "summary": "me",
+                "description": "me",
+                "operationId": "me",
+                "responses": {
+                    "200": {
+                        "description": "successful operation with status = true and user object"
+                    },
+                    "422": {
+                        "description": "status = true : User not activated || status = false : User not found or password is not correct"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/delete_me": {
+            "post": {
+                "tags": [
+                    "UserApiSection"
+                ],
+                "summary": "delete_me",
+                "description": "delete_me",
+                "operationId": "delete_me",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation with status = true along with message"
+                    },
+                    "422": {
+                        "description": "notification not found"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/change_password": {
+            "post": {
+                "tags": [
+                    "AuthanticationApiSection"
+                ],
+                "summary": "change authenticated user password API",
+                "description": "change authenticated user password service",
+                "operationId": "changePassword",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "schema": "change_password",
+                                "required": [
+                                    "old_password",
+                                    "new_password",
+                                    "new_password_confirmation"
+                                ],
+                                "properties": {
+                                    "old_password": {
+                                        "description": "Account old password",
+                                        "type": "string"
+                                    },
+                                    "new_password": {
+                                        "description": "Account new password should be at least 6 chars and different from old one",
+                                        "type": "string"
+                                    },
+                                    "new_password_confirmation": {
+                                        "description": "should be same as new_password",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "old password wrong , new password same as old"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/get_family_member": {
+            "get": {
+                "tags": [
+                    "FamilyMemberApiSection"
+                ],
+                "summary": "getFamilyMember",
+                "description": "getFamilyMember",
+                "operationId": "getFamilyMember",
+                "responses": {
+                    "200": {
+                        "description": "successful operation with status = true and user object"
+                    },
+                    "422": {
+                        "description": "status = true : User not activated || status = false : User not found or password is not correct"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "RegisterCenterInfo": {
+                "title": "RegisterCenterInfo",
+                "required": [
+                    "center_id"
+                ],
+                "properties": {
+                    "center_id": {
+                        "description": "send center  id ",
+                        "type": "number"
+                    }
+                },
+                "type": "object"
+            },
+            "RegisterDoctorInfo": {
+                "title": "RegisterDoctorInfo",
+                "required": [
+                    "doctor_id"
+                ],
+                "properties": {
+                    "doctor_id": {
+                        "description": "send doctor  id ",
+                        "type": "number"
+                    }
+                },
+                "type": "object"
+            },
+            "RegisterFamilyInfo": {
+                "title": "RegisterFamilyInfo",
+                "required": [
+                    "mobile",
+                    "relationship"
+                ],
+                "properties": {
+                    "name": {
+                        "description": "family member name",
+                        "type": "string"
+                    },
+                    "mobile": {
+                        "description": "family member Mobile",
+                        "type": "string"
+                    },
+                    "relationship": {
+                        "description": "User relationship",
+                        "type": "string"
+                    },
+                    "can_view_health_data": {
+                        "description": "can view health data",
+                        "type": "number",
+                        "enum": [
+                            0,
+                            1
+                        ]
+                    },
+                    "can_receive_alerts\t": {
+                        "description": "can receive alerts",
+                        "type": "number",
+                        "enum": [
+                            0,
+                            1
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "RegisterInitial": {
+                "title": "RegisterInitial",
+                "required": [
+                    "name",
+                    "mobile",
+                    "password"
+                ],
+                "properties": {
+                    "name": {
+                        "description": "user name",
+                        "type": "string"
+                    },
+                    "mobile": {
+                        "description": "user mobile",
+                        "type": "number"
+                    },
+                    "password": {
+                        "description": "user password",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "RegisterMedicalInfo": {
+                "title": "RegisterMedicalInfo",
+                "required": [
+                    "dialysis_start_date",
+                    "dialysis_type",
+                    "sessions_per_week"
+                ],
+                "properties": {
+                    "dialysis_start_date": {
+                        "description": "dialysis start date",
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "dialysis_type": {
+                        "description": " disease type",
+                        "type": "string",
+                        "enum": [
+                            "hemodialysis",
+                            "peritoneal"
+                        ]
+                    },
+                    "sessions_per_week": {
+                        "description": "number sessions per week",
+                        "type": "number"
+                    }
+                },
+                "type": "object"
+            },
+            "RegisterPersonal": {
+                "title": "RegisterPersonal",
+                "required": [
+                    "birth_date",
+                    "gender",
+                    "blood_type"
+                ],
+                "properties": {
+                    "birth_date": {
+                        "description": "User birth date",
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "gender": {
+                        "description": "User gender",
+                        "type": "string",
+                        "enum": [
+                            "male",
+                            "female"
+                        ]
+                    },
+                    "blood_type": {
+                        "description": "User blood type",
+                        "type": "string",
+                        "enum": [
+                            "A+",
+                            "A-",
+                            "B+",
+                            "B-",
+                            "AB+",
+                            "AB-",
+                            "O+",
+                            "O-"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "UpdateProfileRequest": {
+                "title": "UpdateProfileRequest",
+                "required": [
+                    "name",
+                    "mobile"
+                ],
+                "properties": {
+                    "name": {
+                        "description": "name",
+                        "type": "string"
+                    },
+                    "mobile": {
+                        "description": "user mobile",
+                        "type": "string"
+                    },
+                    "avatar": {
+                        "description": "profile image",
+                        "type": "string",
+                        "format": "binary"
+                    },
+                    "birth_date": {
+                        "description": "User birth date",
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "gender": {
+                        "description": "User gender",
+                        "type": "string",
+                        "enum": [
+                            "male",
+                            "female"
+                        ]
+                    },
+                    "blood_type": {
+                        "description": "User blood type",
+                        "type": "string",
+                        "enum": [
+                            "A+",
+                            "A-",
+                            "B+",
+                            "B-",
+                            "AB+",
+                            "AB-",
+                            "O+",
+                            "O-"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "UserLoginRegister": {
+                "title": "UserLoginRegister",
+                "required": [
+                    "mobile",
+                    "password"
+                ],
+                "properties": {
+                    "mobile": {
+                        "description": "user mobile",
+                        "type": "number"
+                    },
+                    "password": {
+                        "description": "user password",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "VerifyCode": {
+                "title": "VerifyCode",
+                "required": [
+                    "code",
+                    "mobile"
+                ],
+                "properties": {
+                    "mobile": {
+                        "description": "user mobile",
+                        "type": "number"
+                    },
+                    "code": {
+                        "description": "activation code recieved on either mobile or email",
+                        "type": "number"
+                    }
+                },
+                "type": "object"
+            },
+            "GeneralDataResource": {
+                "title": "GeneralDataResource",
+                "properties": {
+                    "id": {
+                        "description": "id",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "description": "name",
+                        "type": "string"
+                    },
+                    "image": {
+                        "description": "image",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "Center Resource": {
+                "title": "Center Resource",
+                "properties": {
+                    "id": {
+                        "description": "Dialysis center ID",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "description": "Dialysis center name",
+                        "type": "string"
+                    },
+                    "doctors": {
+                        "description": "Doctors working at this dialysis center",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Doctor Resource"
+                        }
+                    }
+                },
+                "type": "object",
+                "example": {
+                    "id": 1,
+                    "name": "مركز هند الدغمة لغسيل الكلى",
+                    "doctors": [
+                        {
+                            "id": 1,
+                            "user_id": 10,
+                            "name": "Dr. Ahmad Mohammad",
+                            "mobile": "0599000001",
+                            "specialization": "Nephrology",
+                            "license_number": "DOC-0001",
+                            "status": "enabled"
+                        },
+                        {
+                            "id": 2,
+                            "user_id": 11,
+                            "name": "Dr. Mohammad Ali",
+                            "mobile": "0599000002",
+                            "specialization": "Nephrology",
+                            "license_number": "DOC-0002",
+                            "status": "enabled"
+                        }
+                    ]
+                }
+            },
+            "Doctor Resource": {
+                "title": "Doctor Resource",
+                "properties": {
+                    "id": {
+                        "description": "Doctor ID",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "user_id": {
+                        "description": "User ID",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "description": "Doctor name",
+                        "type": "string"
+                    },
+                    "email": {
+                        "description": "Doctor email",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "mobile": {
+                        "description": "Doctor mobile number",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "avatar": {
+                        "description": "Doctor avatar URL",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "specialization": {
+                        "description": "Doctor specialization",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "license_number": {
+                        "description": "Doctor medical license number",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "status": {
+                        "description": "Doctor account status",
+                        "type": "string",
+                        "enum": [
+                            "not_verified",
+                            "enabled",
+                            "disabled"
+                        ]
+                    },
+                    "dialysis_center_id": {
+                        "description": "Dialysis center ID",
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                },
+                "type": "object",
+                "example": {
+                    "id": 1,
+                    "user_id": 10,
+                    "name": "Dr. Ahmad Mohammad",
+                    "mobile": "0599000001",
+                    "specialization": "Nephrology",
+                    "license_number": "DOC-0001",
+                    "dialysis_center_id": 1
+                }
+            },
+            "Family Member Resource": {
+                "title": "Family Member Resource",
+                "properties": {
+                    "id": {
+                        "description": "Doctor ID",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "user_id": {
+                        "description": "User ID",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "description": "Doctor name",
+                        "type": "string"
+                    },
+                    "email": {
+                        "description": "Doctor email",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "mobile": {
+                        "description": "Doctor mobile number",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "avatar": {
+                        "description": "Doctor avatar URL",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "specialization": {
+                        "description": "Doctor specialization",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "license_number": {
+                        "description": "Doctor medical license number",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "status": {
+                        "description": "Doctor account status",
+                        "type": "string",
+                        "enum": [
+                            "not_verified",
+                            "enabled",
+                            "disabled"
+                        ]
+                    },
+                    "dialysis_center_id": {
+                        "description": "Dialysis center ID",
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                },
+                "type": "object",
+                "example": {
+                    "id": 1,
+                    "user_id": 10,
+                    "name": "Dr. Ahmad Mohammad",
+                    "mobile": "0599000001",
+                    "specialization": "Nephrology",
+                    "license_number": "DOC-0001",
+                    "dialysis_center_id": 1
+                }
+            },
+            "UserResource": {
+                "title": "User Response",
+                "properties": {
+                    "id": {
+                        "description": "user id",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "description": "user name",
+                        "type": "string"
+                    },
+                    "email": {
+                        "description": "user email",
+                        "type": "string"
+                    },
+                    "mobile": {
+                        "description": "user mobile",
+                        "type": "string"
+                    },
+                    "status": {
+                        "description": "user status not_verifed,enabled,disabled",
+                        "type": "integer"
+                    },
+                    "avatar": {
+                        "description": "user avatar url",
+                        "type": "string"
+                    },
+                    "country_id": {
+                        "description": "user country_id",
+                        "type": "number"
+                    },
+                    "country": {
+                        "description": "user country",
+                        "type": "object"
+                    },
+                    "accessToken": {
+                        "description": "user Token",
+                        "type": "string"
+                    },
+                    "language": {
+                        "description": "user language ar or en",
+                        "type": "string"
+                    },
+                    "enable_notification": {
+                        "description": "enable notification 0 : off , 1:on",
+                        "type": "number"
+                    },
+                    "schedule_notification_before": {
+                        "description": "schedule_notification_before",
+                        "type": "number"
+                    }
+                },
+                "type": "object",
+                "example": {
+                    "user": {
+                        "id": "1",
+                        "name": "test",
+                        "email": "",
+                        "mobile": "0592105087",
+                        "status": "enabled",
+                        "avatar": "http://localhost:8000/uploads/blank.png",
+                        "country_id": 1,
+                        "country": {
+                            "name": "السعودية",
+                            "nationality": "",
+                            "currency": "ريال سعودي"
+                        },
+                        "accessToken": "1|9Y7tGIqrsOuvISbXJV67IsMZauA26kE1KoTU04H5",
+                        "language": "ar",
+                        "activation_code": "1234",
+                        "enable_notification": 0,
+                        "schedule_notification_before": 0
+                    }
+                }
+            }
+        },
+        "parameters": {
+            "language": {
+                "name": "language",
+                "in": "header",
+                "description": "response language : ar for arabic || en for english",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                },
+                "examples": {
+                    "ar": {
+                        "summary": "Arabic",
+                        "value": "ar"
+                    },
+                    "en": {
+                        "summary": "English",
+                        "value": "en"
+                    }
+                }
+            },
+            "device_key": {
+                "name": "device_key",
+                "in": "header",
+                "description": "mobile device key used for firebase notifications",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "device_name": {
+                "name": "device_name",
+                "in": "header",
+                "description": "user device name",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "device_type": {
+                "name": "device_type",
+                "in": "header",
+                "description": "user device type android or ios",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                }
+            }
+        },
+        "securitySchemes": {
+            "api_key": {
+                "type": "apiKey",
+                "description": "send Bearer token",
+                "name": "Authorization",
+                "in": "header",
+                "scheme": "Bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "AuthanticationApiSection",
+            "description": "API Package for Authantication requests"
+        },
+        {
+            "name": "NotificationsApiSection",
+            "description": "NotificationsApiSection"
+        },
+        {
+            "name": "UserApiSection",
+            "description": "UserApiSection"
+        },
+        {
+            "name": "FamilyMemberApiSection",
+            "description": "FamilyMemberApiSection"
+        }
+    ],
+    "security": [
+        {
+            "api_key": []
+        }
+    ]
+}
