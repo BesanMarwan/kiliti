@@ -114,7 +114,6 @@ class AuthController extends Controller
         }
     }
 
-
     #[OA\Post(
         path: "/api/v1/user/resend_verify_code",
         operationId: "resend verify code",
@@ -353,11 +352,11 @@ class AuthController extends Controller
 
 
     #[OA\Post(
-        path: "/api/v1/user/register_personal",
-        operationId: "register_personal",
+        path: "/api/v1/user/complete_register",
+        operationId: "complete_register",
         tags: ["AuthanticationApiSection"],
-        summary: "User  register personal API ",
-        description: "User register personal returns user object",
+        summary: "Complete User  register personal API ",
+        description: "Complete User register personal returns user object",
         requestBody: new OA\RequestBody(
             content: new OA\MediaType(
                 mediaType: "multipart/form-data",
@@ -384,7 +383,7 @@ class AuthController extends Controller
             )
         ]
     )]
-    public function registerPersonal(RegisterPersonalRequest $request)
+    public function completeRegister(RegisterPersonalRequest $request)
     {
 
         $user = \auth()->user();
@@ -399,230 +398,70 @@ class AuthController extends Controller
         if($user->role != 'patient'){
             return ApiActions::generateResponse(null, 'This_registration_stepـisـintendedـforـpatients.', ResponseCode::VALIDATION_ERROR);
         }
-        $patient = $user->patient;
-        if(! $user->patient){
-            $patient          = new Patient();
-        }
-        $patient->user_id        = $user->id;
-        $patient->date_of_birth  = $request->birth_date;
-        $patient->gender         = $request->gender;
-        $patient->blood_type     = $request->blood_type;
-        $patient->save();
+        try {
+            DB::beginTransaction();
+            /*********************** Start  Personal  data **************************/
+            $patient = $user->patient;
+            if (!$user->patient) {
+                $patient = new Patient();
+            }
+            $patient->user_id       = $user->id;
+            $patient->date_of_birth = $request->birth_date;
+            $patient->gender        = $request->gender;
+            $patient->blood_type    = $request->blood_type;
+            $patient->save();
+            $patient->refresh();
 
-        $user->register_step='medical_info';
-        $user->is_register_end=0;
-        $user->save();
-        $user ->refresh();
+            /*********************** End  Personal  data **************************/
 
-        return ApiActions::generateResponse(compact('user'));
+            /*********************** Start  Medical info  data **************************/
+            $patient->dialysis_start_date     = $request->dialysis_start_date;
+            $patient->dialysis_type           = $request->dialysis_type;
+            $patient->sessions_per_week       = $request->sessions_per_week;
+            $patient->kidney_disease_type     = $request->dialysis_type == 'hemodialysis' ? 'غسيل الكلى الدموي' :'الغسيل البريتوني';
+            $patient->save();
+            /*********************** End  Medical info  data **************************/
 
-    }
-
-
-    #[OA\Post(
-        path: "/api/v1/user/register_medical_info",
-        operationId: "register_medical_info",
-        tags: ["AuthanticationApiSection"],
-        summary: "User  register medical info API ",
-        description: "User register medical info returns user object",
-        requestBody: new OA\RequestBody(
-            content: new OA\MediaType(
-                mediaType: "multipart/form-data",
-                schema: new OA\Schema(
-                    ref: "#/components/schemas/RegisterMedicalInfo"
-                )
-            )
-        ),
-        parameters: [
-            new OA\Parameter(ref: "#/components/parameters/language"),
-            new OA\Parameter(ref: "#/components/parameters/device_key"),
-            new OA\Parameter(ref: "#/components/parameters/device_name"),
-            new OA\Parameter(ref: "#/components/parameters/device_type")
-        ],
-        responses: [
-            new OA\Response(
-                response: 200,
-                description: "successful operation with status = true and user object"
-            ),
-
-            new OA\Response(
-                response: 422,
-                description: "status = true : User not activated || status = false : User not found or password is not correct"
-            )
-        ]
-    )]
-    public function registerMedicalInfo(RegisterMedicalInfoRequest $request)
-    {
-
-        $user = \auth()->user();
-
-        if($user->is_register_end ==1){
-            return ApiActions::generateResponse(null, 'you_are_finish_register_step', ResponseCode::VALIDATION_ERROR);
-        }
-
-        if($user->register_step != 'medical_info'){
-            return ApiActions::generateResponse(null, 'you_must_finish_previous_steps', ResponseCode::VALIDATION_ERROR);
-        }
-        if($user->role != 'patient'){
-            return ApiActions::generateResponse(null, 'This_registration_stepـisـintendedـforـpatients.', ResponseCode::VALIDATION_ERROR);
-        }
-        $patient = $user->patient;
-        if(! $user->patient){
-            $patient                 = new Patient();
-            $patient->user_id        = $user->id;
-        }
-        $patient->dialysis_start_date     = $request->dialysis_start_date;
-        $patient->dialysis_type           = $request->dialysis_type;
-        $patient->sessions_per_week       = $request->sessions_per_week;
-        $patient->kidney_disease_type     = $request->dialysis_type == 'hemodialysis' ? 'غسيل الكلى الدموي' :'الغسيل البريتوني';
-        $patient->save();
-
-        $user->register_step  ='dialysis_center_info';
-        $user->is_register_end=0;
-        $user->save();
-        $user ->refresh();
-
-        return ApiActions::generateResponse(compact('user'));
-
-    }
-
-
-
-    #[OA\Post(
-        path: "/api/v1/user/register_center_info",
-        operationId: "register_center_info",
-        tags: ["AuthanticationApiSection"],
-        summary: "User  register medical info API ",
-        description: "User register medical info returns user object",
-        requestBody: new OA\RequestBody(
-            content: new OA\MediaType(
-                mediaType: "multipart/form-data",
-                schema: new OA\Schema(
-                    ref: "#/components/schemas/RegisterCenterInfo"
-                )
-            )
-        ),
-        parameters: [
-            new OA\Parameter(ref: "#/components/parameters/language"),
-            new OA\Parameter(ref: "#/components/parameters/device_key"),
-            new OA\Parameter(ref: "#/components/parameters/device_name"),
-            new OA\Parameter(ref: "#/components/parameters/device_type")
-        ],
-        responses: [
-            new OA\Response(
-                response: 200,
-                description: "successful operation with status = true and user object"
-            ),
-
-            new OA\Response(
-                response: 422,
-                description: "status = true : User not activated || status = false : User not found or password is not correct"
-            )
-        ]
-    )]
-    public function registerCenterInfo(RegisterCenterInfoRequest $request)
-    {
-
-        $user = \auth()->user();
-
-        if($user->is_register_end ==1){
-            return ApiActions::generateResponse(null, 'you_are_finish_register_step', ResponseCode::VALIDATION_ERROR);
-        }
-
-        if($user->register_step != 'dialysis_center_info'){
-            return ApiActions::generateResponse(null, 'you_must_finish_previous_steps', ResponseCode::VALIDATION_ERROR);
-        }
-        if($user->role != 'patient'){
-            return ApiActions::generateResponse(null, 'This_registration_stepـisـintendedـforـpatients.', ResponseCode::VALIDATION_ERROR);
-        }
-        $patient_center = PatientCenter::where('patient_id',$user->patient->id)->where('center_id',$request->center_id)->first();
-        if(! $patient_center){
+            /*********************** Start  Center  info data **************************/
+            $patient_center = PatientCenter::where('patient_id',$patient->id)->where('center_id',$request->center_id)->first();
+            if(! $patient_center){
             $patient_center  = new PatientCenter();
-            $patient_center->patient_id = $user->patient->id;
-        }
-        $patient_center->center_id        = $request->center_id;
-        $patient_center->status           = 'enabled';
-        $patient_center->started_at       = now()->toDateString();
-        $patient_center->save();
+            $patient_center->patient_id = $patient->id;
+            }
+            $patient_center->center_id        = $request->center_id;
+            $patient_center->status           = 'enabled';
+            $patient_center->started_at       = now()->toDateString();
+            $patient_center->save();
+            /*********************** End  Center  info data **************************/
 
-        $user->register_step  ='doctor_info';
-        $user->is_register_end=0;
-        $user->save();
-
-        return ApiActions::generateResponse(compact('user'));
-
-    }
-
-
-
-    #[OA\Post(
-        path: "/api/v1/user/register_doctor_info",
-        operationId: "register_doctor_info",
-        tags: ["AuthanticationApiSection"],
-        summary: "User  register doctor info API ",
-        description: "User register doctor info returns user object",
-        requestBody: new OA\RequestBody(
-            content: new OA\MediaType(
-                mediaType: "multipart/form-data",
-                schema: new OA\Schema(
-                    ref: "#/components/schemas/RegisterDoctorInfo"
-                )
-            )
-        ),
-        parameters: [
-            new OA\Parameter(ref: "#/components/parameters/language"),
-            new OA\Parameter(ref: "#/components/parameters/device_key"),
-            new OA\Parameter(ref: "#/components/parameters/device_name"),
-            new OA\Parameter(ref: "#/components/parameters/device_type")
-        ],
-        responses: [
-            new OA\Response(
-                response: 200,
-                description: "successful operation with status = true and user object"
-            ),
-
-            new OA\Response(
-                response: 422,
-                description: "status = true : User not activated || status = false : User not found or password is not correct"
-            )
-        ]
-    )]
-    public function registerDoctorInfo(RegisterDoctorInfoRequest $request)
-    {
-
-        $user = \auth()->user();
-
-        if($user->is_register_end ==1){
-            return ApiActions::generateResponse(null, 'you_are_finish_register_step', ResponseCode::VALIDATION_ERROR);
-        }
-
-        if($user->register_step != 'doctor_info'){
-            return ApiActions::generateResponse(null, 'you_must_finish_previous_steps', ResponseCode::VALIDATION_ERROR);
-        }
-        if($user->role != 'patient'){
-            return ApiActions::generateResponse(null, 'This_registration_step_is_intended_for_patients.', ResponseCode::VALIDATION_ERROR);
-        }
-        $patient_doctor = PatientDoctor::where('patient_id',$user->patient->id)->where('doctor_id',$request->doctor_id)->first();
-        if(! $patient_doctor){
+            /*********************** Start  Doctor  info data **************************/
+            $patient_doctor = PatientDoctor::where('patient_id',$patient->id)->where('doctor_id',$request->doctor_id)->first();
+            if(! $patient_doctor){
             $patient_doctor  = new PatientDoctor();
-            $patient_doctor->patient_id = $user->patient->id;
+            $patient_doctor->patient_id = $patient->id;
+            }
+            $patient_doctor->doctor_id        = $request->doctor_id;
+            $patient_doctor->is_primary       = 1;
+            $patient_doctor->started_at       = now()->toDateString();
+            $patient_doctor->save();
+            /*********************** End  Doctor  info data **************************/
+
+
+            $user->register_step ='finish';
+            $user->is_register_end = 1;
+            $user->save();
+            $user->refresh();
+
+            DB::commit();
+
+            return ApiActions::generateResponse(compact('user'));
+        }catch(\Exception $e){
+            \DB::rollback();
+            return $e->getMessage();
+            return ApiActions::generateResponse(null, $e->getMessage(), ResponseCode::VALIDATION_ERROR);
+
         }
-        $patient_doctor->doctor_id        = $request->doctor_id;
-        $patient_doctor->is_primary       = 1;
-        $patient_doctor->started_at       = now()->toDateString();
-        $patient_doctor->save();
-        $user->register_step  ='family_member_info';
-        $user->is_register_end=0;
-        $user->save();
-        $user ->refresh();
-
-        $user = UserResource::make($user);
-
-        return ApiActions::generateResponse(compact('user'));
-
     }
-
-
 
     #[OA\Post(
         path: "/api/v1/user/register_family_info",

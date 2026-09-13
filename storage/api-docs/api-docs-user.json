@@ -72,7 +72,7 @@
                                 "properties": {
                                     "mobile": {
                                         "description": "mobile",
-                                        "type": "string"
+                                        "type": "number"
                                     }
                                 },
                                 "type": "object"
@@ -196,14 +196,14 @@
                 }
             }
         },
-        "/api/v1/user/register_personal": {
+        "/api/v1/user/complete_register": {
             "post": {
                 "tags": [
                     "AuthanticationApiSection"
                 ],
-                "summary": "User  register personal API ",
-                "description": "User register personal returns user object",
-                "operationId": "register_personal",
+                "summary": "Complete User  register personal API ",
+                "description": "Complete User register personal returns user object",
+                "operationId": "complete_register",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/language"
@@ -223,129 +223,6 @@
                         "multipart/form-data": {
                             "schema": {
                                 "$ref": "#/components/schemas/RegisterPersonal"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "successful operation with status = true and user object"
-                    },
-                    "422": {
-                        "description": "status = true : User not activated || status = false : User not found or password is not correct"
-                    }
-                }
-            }
-        },
-        "/api/v1/user/register_medical_info": {
-            "post": {
-                "tags": [
-                    "AuthanticationApiSection"
-                ],
-                "summary": "User  register medical info API ",
-                "description": "User register medical info returns user object",
-                "operationId": "register_medical_info",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/language"
-                    },
-                    {
-                        "$ref": "#/components/parameters/device_key"
-                    },
-                    {
-                        "$ref": "#/components/parameters/device_name"
-                    },
-                    {
-                        "$ref": "#/components/parameters/device_type"
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "$ref": "#/components/schemas/RegisterMedicalInfo"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "successful operation with status = true and user object"
-                    },
-                    "422": {
-                        "description": "status = true : User not activated || status = false : User not found or password is not correct"
-                    }
-                }
-            }
-        },
-        "/api/v1/user/register_center_info": {
-            "post": {
-                "tags": [
-                    "AuthanticationApiSection"
-                ],
-                "summary": "User  register medical info API ",
-                "description": "User register medical info returns user object",
-                "operationId": "register_center_info",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/language"
-                    },
-                    {
-                        "$ref": "#/components/parameters/device_key"
-                    },
-                    {
-                        "$ref": "#/components/parameters/device_name"
-                    },
-                    {
-                        "$ref": "#/components/parameters/device_type"
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "$ref": "#/components/schemas/RegisterCenterInfo"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "successful operation with status = true and user object"
-                    },
-                    "422": {
-                        "description": "status = true : User not activated || status = false : User not found or password is not correct"
-                    }
-                }
-            }
-        },
-        "/api/v1/user/register_doctor_info": {
-            "post": {
-                "tags": [
-                    "AuthanticationApiSection"
-                ],
-                "summary": "User  register doctor info API ",
-                "description": "User register doctor info returns user object",
-                "operationId": "register_doctor_info",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/language"
-                    },
-                    {
-                        "$ref": "#/components/parameters/device_key"
-                    },
-                    {
-                        "$ref": "#/components/parameters/device_name"
-                    },
-                    {
-                        "$ref": "#/components/parameters/device_type"
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "$ref": "#/components/schemas/RegisterDoctorInfo"
                             }
                         }
                     }
@@ -821,32 +698,6 @@
     },
     "components": {
         "schemas": {
-            "RegisterCenterInfo": {
-                "title": "RegisterCenterInfo",
-                "required": [
-                    "center_id"
-                ],
-                "properties": {
-                    "center_id": {
-                        "description": "send center  id ",
-                        "type": "number"
-                    }
-                },
-                "type": "object"
-            },
-            "RegisterDoctorInfo": {
-                "title": "RegisterDoctorInfo",
-                "required": [
-                    "doctor_id"
-                ],
-                "properties": {
-                    "doctor_id": {
-                        "description": "send doctor  id ",
-                        "type": "number"
-                    }
-                },
-                "type": "object"
-            },
             "RegisterFamilyInfo": {
                 "title": "RegisterFamilyInfo",
                 "required": [
@@ -908,40 +759,15 @@
                 },
                 "type": "object"
             },
-            "RegisterMedicalInfo": {
-                "title": "RegisterMedicalInfo",
-                "required": [
-                    "dialysis_start_date",
-                    "dialysis_type",
-                    "sessions_per_week"
-                ],
-                "properties": {
-                    "dialysis_start_date": {
-                        "description": "dialysis start date",
-                        "type": "string",
-                        "format": "date"
-                    },
-                    "dialysis_type": {
-                        "description": " disease type",
-                        "type": "string",
-                        "enum": [
-                            "hemodialysis",
-                            "peritoneal"
-                        ]
-                    },
-                    "sessions_per_week": {
-                        "description": "number sessions per week",
-                        "type": "number"
-                    }
-                },
-                "type": "object"
-            },
             "RegisterPersonal": {
                 "title": "RegisterPersonal",
                 "required": [
                     "birth_date",
                     "gender",
-                    "blood_type"
+                    "blood_type",
+                    "dialysis_start_date",
+                    "dialysis_type",
+                    "sessions_per_week"
                 ],
                 "properties": {
                     "birth_date": {
@@ -970,6 +796,31 @@
                             "O+",
                             "O-"
                         ]
+                    },
+                    "dialysis_start_date": {
+                        "description": "dialysis start date",
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "dialysis_type": {
+                        "description": " disease type",
+                        "type": "string",
+                        "enum": [
+                            "hemodialysis",
+                            "peritoneal"
+                        ]
+                    },
+                    "sessions_per_week": {
+                        "description": "number sessions per week",
+                        "type": "number"
+                    },
+                    "center_id": {
+                        "description": "send center  id ",
+                        "type": "number"
+                    },
+                    "doctor_id": {
+                        "description": "send doctor  id ",
+                        "type": "number"
                     }
                 },
                 "type": "object"

@@ -10,11 +10,8 @@ use \App\Http\Controllers\Api\V1\User\AuthController;
 
 Route::post('/register_initial',               [AuthController::class, 'registerInitial']);
 Route::group(['middleware' => ['auth:sanctum','verified_mobile']], function () {
-    Route::post('/register_personal', [AuthController::class, 'registerPersonal']);
-    Route::post('/register_medical_info', [AuthController::class, 'registerMedicalInfo']);
-    Route::post('/register_center_info', [AuthController::class, 'registerCenterInfo']);
-    Route::post('/register_doctor_info', [AuthController::class, 'registerDoctorInfo']);
-    Route::post('/register_family_info', [AuthController::class, 'registerFamilyInfo']);
+    Route::post('/complete_register', [AuthController::class, 'completeRegister']);
+
 });
 
 
