@@ -131,7 +131,7 @@ class AuthController extends Controller
                         new OA\Property(
                             property: "mobile",
                             description: "mobile",
-                            type: "string"
+                            type: "number"
                         )
                     ]
                 )
