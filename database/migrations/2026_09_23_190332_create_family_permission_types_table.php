@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('family_permission_types', function (Blueprint $table) {
             $table->id();
-            $table->text('name')->unique();
+            $table->text('name');
             $table->text('label')->nullable();
             $table->timestamps();
         });
