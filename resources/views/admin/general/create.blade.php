@@ -59,7 +59,7 @@
                     </div>
                 @endif
                 <div class="col-md-5">
-                    <button class="btn btn-sm w-100 btn-flex justify-content-center btn-light-primary btn-save" data-closemodal="#OpenModal_2">اضافة</button>
+                    <button class="btn btn-sm w-100 btn-flex justify-content-center btn-light-info btn-save" data-closemodal="#OpenModal_2">اضافة</button>
 
                 </div>
             </div>

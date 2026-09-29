@@ -165,31 +165,5 @@ class UserController extends Controller
     }
 
 
-    #[OA\Get(
-        path: "/api/v1/user/get_family_member",
-        operationId: "getFamilyMember",
-        tags: ["FamilyMemberApiSection"],
-        summary: "getFamilyMember",
-        description: "getFamilyMember",
-        security: [["api_key" => []]],
-        responses: [
-            new OA\Response(
-                response: 200,
-                description: "successful operation with status = true and user object"
-            ),
-
-            new OA\Response(
-                response: 422,
-                description: "status = true : User not activated || status = false : User not found or password is not correct"
-            )
-        ]
-    )]
-    public function getFamilyMember()
-    {
-        $user           = \auth()->user();
-        $family_members = FamilyMemberResource::collection($user->patient->familyMembers);
-        return ApiActions::generateResponse(compact('family_members'));
-    }
-
 
 }

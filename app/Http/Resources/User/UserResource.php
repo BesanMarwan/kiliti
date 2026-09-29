@@ -141,6 +141,9 @@ class UserResource extends JsonResource
             $user['patient'] = [
                 'id' => (int) $this->patient->id,
                 'user_id' => (int) $this->patient->user_id,
+                'national_id' =>$this->national_id,
+                'current_job' =>$this->current_job,
+                'address' =>$this->address,
                 'birth_date' => $this->patient->date_of_birth->toDateString(),
                 'gender' => $this->patient->gender,
                 'blood_type' => $this->patient->blood_type,
@@ -148,12 +151,34 @@ class UserResource extends JsonResource
                 'dialysis_start_date' => $this->patient->dialysis_start_date->toDateString(),
                 'dialysis_type' => $this->patient->dialysis_type,
                 'sessions_per_week' => $this->patient->sessions_per_week,
+                'daily_fluid_limit' => $this->patient->daily_fluid_limit,
 
                 'dialysis_center_id' => $this->patient->dialysis_center_id,
                 'dialysis_center' => $this->patient->centers,
                 'dialysis_centers' => $this->patient->centers?? [],
                 'doctors' => DoctorResource::collection($this->patient->doctors) ?? [],
             ];
+        }
+        if($this->role == 'family'){
+
+            $user['family_member'] = $this->when(
+                $this->familyMember,
+                function () {
+                    return [
+                        'id' => $this->familyMember->id,
+                        'relationships' => $this->familyMember
+                            ->patientFamilyMembers
+                            ->map(function ($relation) {
+                                return [
+                                    'patient_id' => $relation->patient_id,
+                                    'relationship' => $relation->relationship,
+                                    'status' => $relation->status,
+                                ];
+                            })
+                            ->values(),
+                    ];
+                }
+            );
         }
 
         return $user;

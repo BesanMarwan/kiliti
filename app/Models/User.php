@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Traits\AddMobilePrefix;
 use App\Traits\HasSearchable;
+use App\Traits\HasStatus;
+use App\Traits\ImageTrait;
 use Illuminate\Contracts\Notifications\Dispatcher;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -74,7 +76,7 @@ use Laravel\Sanctum\HasApiTokens;
  */
 class User extends Authenticatable
 {
-    use HasApiTokens,HasFactory, Notifiable,HasSearchable,AddMobilePrefix;
+    use HasApiTokens,HasFactory, Notifiable,HasSearchable,AddMobilePrefix,ImageTrait,HasStatus;
 
     protected $guarded=[];
 
@@ -113,15 +115,7 @@ class User extends Authenticatable
         ];
     }
 
-    public function getImageUrlAttribute()
-    {
-        $logo = isset($this->attributes['avatar']) ? $this->attributes['avatar'] : '';
 
-        if (\URL::isValidUrl($logo)) {
-            return $logo;
-        }
-        return $logo ? asset('uploads/'.$logo) : asset('uploads/blank.png');
-    }
 
     public function country()
     {
@@ -153,10 +147,37 @@ class User extends Authenticatable
         return $this->hasOne(Doctor::class);
     }
 
+    public function rate()
+    {
+        return $this->hasOne(ApplicationRate::class);
+    }
+
     public function familyMember()
     {
         return $this->hasOne(FamilyMember::class);
     }
+
+
+    public function announcementsCreated()
+    {
+        return $this->hasMany(Announcement::class, 'created_by');
+    }
+
+    public function targetedAnnouncements()
+    {
+        return $this->hasMany(Announcement::class, 'target_user_id');
+    }
+
+    public function reviewedAiAlerts()
+    {
+        return $this->hasMany(AiAlert::class, 'reviewed_by');
+    }
+
+    public function new_notifications()
+    {
+        return $this->morphMany(FcmNotification::class,'owner')->whereNull('read_at');
+    }
+
 
 
     /**

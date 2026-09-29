@@ -38,7 +38,7 @@ use OpenApi\Attributes as OA;
 #[OA\Info(
     description: "My College User API Documentation",
     version: "1.0.0",
-    title: "Base User API swagger documentation",
+    title: "My College  API swagger documentation",
     termsOfService: "http://swagger.io/terms/",
     contact: new OA\Contact(
         email: "besanmarwan2000@gmail.com"
@@ -252,17 +252,17 @@ class AuthController extends Controller
     public function login(UserLoginRegister $request)
     {
         $country_id = $request->country_id ?? 1;
-        $old = User::where('mobile', $request->mobile)->where('country_id', $country_id)->first();
-        if ($old) {
-            if (Hash::check($request->password, $old->password)) {
-                $old->last_login = Carbon::now();
-                if (!$old->accessToken) {
-                    $old->accessToken = $old->createToken('Driver_' . $old->id . '_' . Carbon::now()->toDateTimeString())->plainTextToken;
+        $user = User::where('mobile', $request->mobile)->where('country_id', $country_id)->first();
+        if ($user) {
+            if (Hash::check($request->password, $user->password)) {
+                $user->last_login = Carbon::now();
+                if (!$user->accessToken) {
+                    $user->accessToken = $user->createToken('User_' . $user->id . '_' . Carbon::now()->toDateTimeString())->plainTextToken;
                 }
-                $old->language = app()->getLocale();
-                $old->save();
-                $user = UserResource::make($old);
-                if ($old->status != 'enabled') {
+                $user->language = app()->getLocale();
+                $user->save();
+                $user = UserResource::make($user);
+                if ($user->status != 'enabled') {
                     return ApiActions::generateResponse(compact('user'), 'verify_mobile', ResponseCode::NOT_VERTIFIED);
                 }
 
@@ -407,6 +407,9 @@ class AuthController extends Controller
             }
             $patient->user_id       = $user->id;
             $patient->date_of_birth = $request->birth_date;
+            $patient->address       = $request->address;
+            $patient->national_id   = $request->current_job;
+            $patient->current_job   = $request->current_job;
             $patient->gender        = $request->gender;
             $patient->blood_type    = $request->blood_type;
             $patient->save();
@@ -425,8 +428,8 @@ class AuthController extends Controller
             /*********************** Start  Center  info data **************************/
             $patient_center = PatientCenter::where('patient_id',$patient->id)->where('center_id',$request->center_id)->first();
             if(! $patient_center){
-            $patient_center  = new PatientCenter();
-            $patient_center->patient_id = $patient->id;
+                $patient_center  = new PatientCenter();
+                $patient_center->patient_id = $patient->id;
             }
             $patient_center->center_id        = $request->center_id;
             $patient_center->status           = 'enabled';
@@ -437,8 +440,8 @@ class AuthController extends Controller
             /*********************** Start  Doctor  info data **************************/
             $patient_doctor = PatientDoctor::where('patient_id',$patient->id)->where('doctor_id',$request->doctor_id)->first();
             if(! $patient_doctor){
-            $patient_doctor  = new PatientDoctor();
-            $patient_doctor->patient_id = $patient->id;
+                $patient_doctor  = new PatientDoctor();
+                $patient_doctor->patient_id = $patient->id;
             }
             $patient_doctor->doctor_id        = $request->doctor_id;
             $patient_doctor->is_primary       = 1;
@@ -463,93 +466,6 @@ class AuthController extends Controller
         }
     }
 
-    #[OA\Post(
-        path: "/api/v1/user/register_family_info",
-        operationId: "register_family_info",
-        tags: ["AuthanticationApiSection"],
-        summary: "User  register family member info API ",
-        description: "User register  family member info returns user object",
-        requestBody: new OA\RequestBody(
-            content: new OA\MediaType(
-                mediaType: "multipart/form-data",
-                schema: new OA\Schema(
-                    ref: "#/components/schemas/RegisterFamilyInfo"
-                )
-            )
-        ),
-        parameters: [
-            new OA\Parameter(ref: "#/components/parameters/language"),
-            new OA\Parameter(ref: "#/components/parameters/device_key"),
-            new OA\Parameter(ref: "#/components/parameters/device_name"),
-            new OA\Parameter(ref: "#/components/parameters/device_type")
-        ],
-        responses: [
-            new OA\Response(
-                response: 200,
-                description: "successful operation with status = true and user object"
-            ),
-
-            new OA\Response(
-                response: 422,
-                description: "status = true : User not activated || status = false : User not found or password is not correct"
-            )
-        ]
-    )]
-    public function registerFamilyInfo(RegisterFamilyInfoRequest $request)
-    {
-
-        $user = \auth()->user();
-
-        if($user->is_register_end ==1){
-            return ApiActions::generateResponse(null, 'you_are_finish_register_step', ResponseCode::VALIDATION_ERROR);
-        }
-
-        if($user->register_step != 'family_member_info'){
-            return ApiActions::generateResponse(null, 'you_must_finish_previous_steps', ResponseCode::VALIDATION_ERROR);
-        }
-        if($user->role != 'patient'){
-            return ApiActions::generateResponse(null, 'This_registration_step_is_intended_for_patients.', ResponseCode::VALIDATION_ERROR);
-        }
-        try{
-            DB::beginTransaction();
-            $userFamily = new User();
-            $userFamily->name   = $request->name;
-            $userFamily->mobile = $request->mobile;
-            $userFamily->password = Hash::make('password');
-            $userFamily->status = 'not_verified';
-            $userFamily->role   = 'family';
-            $userFamily->register_step  ='finish';
-            $userFamily->is_register_end=1;
-            $userFamily->save();
-            $userFamily ->refresh();
-
-            $member = FamilyMember::create([
-               'user_id'      =>$userFamily->id,
-                'relationship'=>$request->relationship
-            ]);
-
-            $patient_family_member = PatientFamilyMember::create([
-                'patient_id'           =>$user->patient->id,
-                'family_member_id'     =>$member->id,
-                'relationship'         =>$request->relationship,
-                'can_view_health_data' =>$request->can_view_health_data ?? 0,
-                'can_receive_alerts'   =>$request->can_receive_alerts ?? 0,
-            ]);
-
-
-            DB::commit();
-
-            $user = UserResource::make($user);
-
-            return ApiActions::generateResponse(compact('user'));
-        }catch(\Exception $e){
-            return ApiActions::generateResponse(null, $e->getMessage(), ResponseCode::VALIDATION_ERROR);
-
-        }
-
-
-
-    }
 
 
     #[OA\Post(

@@ -42,6 +42,22 @@ use OpenApi\Attributes as OA;
             enum: ["male", "female"]
         ),
         new OA\Property(
+            property: "national_id",
+            description: "Patient national id",
+            type: "string",
+            format: "string"
+        ),
+        new OA\Property(
+            property: "address",
+            description: "Patient Address",
+            type: "string",
+        ),
+        new OA\Property(
+            property: "current_job",
+            description: "Patient Job",
+            type: "string",
+        ),
+        new OA\Property(
             property: "blood_type",
             description: "User blood type",
             type: "string",
@@ -65,12 +81,15 @@ class UpdateProfileRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'       => ['required', 'min:3', 'max:255'],
-            'mobile'     => ['required', Rule::unique('users','mobile')->ignore(auth()->id()), new ValidMobile()],
-            'avatar'     => ['nullable', 'image'],
-            'birth_date' => ['required', 'date','before:today'],
-            'gender'     => ['required', Rule::in(["male","female"])],
-            'blood_type' => ['required', Rule::in(["A+","A-","B+","B-","AB+","AB-","O+","O-"])],
+            'national_id'         => ['required','min:9',Rule::unique('patients','national_id')],
+            'current_job'         => ['required','string'],
+            'address'             => ['nullable','string'],
+            'name'                => ['required', 'min:3', 'max:255'],
+            'mobile'              => ['required', Rule::unique('users','mobile')->ignore(auth()->id()), new ValidMobile()],
+            'avatar'              => ['nullable', 'image'],
+            'birth_date'          => ['required', 'date','before:today'],
+            'gender'              => ['required', Rule::in(["male","female"])],
+            'blood_type'          => ['required', Rule::in(["A+","A-","B+","B-","AB+","AB-","O+","O-"])],
 
 
         ];

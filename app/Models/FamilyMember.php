@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class FamilyMember extends Model
 {
@@ -21,5 +22,11 @@ class FamilyMember extends Model
     public function patients()
     {
         return $this->belongsToMany(Patient::class, 'patient_family_members', 'family_member_id', 'patient_id')->withPivot(['relationship', 'can_view_health_data', 'can_receive_alerts',])->withTimestamps();
+    }
+
+
+    public function patientFamilyMembers(): HasMany
+    {
+        return $this->hasMany(PatientFamilyMember::class);
     }
 }

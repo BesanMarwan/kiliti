@@ -1,19 +1,11 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: ahmed
- * Date: 1/9/2017
- * Time: 03:21 م
- */
 
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\ImageActions;
-use App\Http\Controllers\MediaController;
 use App\Http\Requests\AdminRequest;
 use App\Jobs\SendAdminNotification;
 use App\Models\Admin;
-use App\Models\AdminNotification;
 use App\Models\FcmNotification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -46,8 +38,6 @@ class AdminsController extends Controller
 
     }
 
-
-
     public function store(AdminRequest $request)
     {
 
@@ -67,7 +57,6 @@ class AdminsController extends Controller
         return redirect()->route('system.admins.index');
 
     }
-
     public function showUpdateView($id)
     {
         $out=Admin::findOrFail($id);

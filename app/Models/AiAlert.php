@@ -1,0 +1,31 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class AiAlert extends Model
+{
+    use HasFactory;
+
+    protected $guarded = [];
+
+    protected function casts(): array
+    {
+        return [
+            'detected_at' => 'datetime',
+            'reviewed_at' => 'datetime',
+        ];
+    }
+
+    public function patient()
+    {
+        return $this->belongsTo(Patient::class);
+    }
+
+    public function reviewer()
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
+    }
+}

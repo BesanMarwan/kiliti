@@ -202,4 +202,46 @@ class NotificationController extends Controller
 
         return ApiActions::generateResponse(compact('notifications'));
     }
+
+    #[OA\POST(
+        path: "/api/v1/user/read_all_notification",
+        operationId: "ReadAllNotification",
+        tags: ["NotificationsApiSection"],
+        summary: "read all user notifications",
+        description: "read all user notifications",
+        security: [["api_key" => []]],
+        parameters: [
+            new OA\Parameter(
+                ref: "#/components/parameters/language"
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "successful operation with status = true and notifications array of objects"
+            )
+        ]
+    )]
+    public function ReadAllNotification(Request $request)
+    {
+
+        $user = $request->user();
+
+        $notifications = $user->new_notifications;
+
+
+        foreach ($notifications as $notification){
+            $notification->read_at = now();
+            $notification->save();
+            $notification->refresh();
+        }
+        $notifications = $user->notifications()->orderByDesc('id')->limit(20)->get();
+        if (!$notifications) {
+            return ApiActions::generateResponse(null, 'notifications_not_found', ResponseCode::NOT_FOUND);
+        }
+        $notifications = NotificationResource::collection($notifications);
+
+        return ApiActions::generateResponse(compact('notifications'));
+    }
+
 }

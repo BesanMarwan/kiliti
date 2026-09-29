@@ -1,7 +1,7 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "Base User API swagger documentation",
+        "title": "My College  API swagger documentation",
         "description": "My College User API Documentation",
         "termsOfService": "http://swagger.io/terms/",
         "contact": {
@@ -237,47 +237,6 @@
                 }
             }
         },
-        "/api/v1/user/register_family_info": {
-            "post": {
-                "tags": [
-                    "AuthanticationApiSection"
-                ],
-                "summary": "User  register family member info API ",
-                "description": "User register  family member info returns user object",
-                "operationId": "register_family_info",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/language"
-                    },
-                    {
-                        "$ref": "#/components/parameters/device_key"
-                    },
-                    {
-                        "$ref": "#/components/parameters/device_name"
-                    },
-                    {
-                        "$ref": "#/components/parameters/device_type"
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "$ref": "#/components/schemas/RegisterFamilyInfo"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "successful operation with status = true and user object"
-                    },
-                    "422": {
-                        "description": "status = true : User not activated || status = false : User not found or password is not correct"
-                    }
-                }
-            }
-        },
         "/api/v1/user/update_profile": {
             "post": {
                 "tags": [
@@ -397,6 +356,1667 @@
                         "description": "user not found"
                     }
                 }
+            }
+        },
+        "/api/v1/user/dashboard/alerts": {
+            "get": {
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Get patient dashboard alerts",
+                "description": "Returns the important alerts that should be displayed on the patient dashboard.",
+                "operationId": "dd69fce4436c05fe065a81caff20c9f2",
+                "responses": {
+                    "200": {
+                        "description": "Dashboard alerts retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/DashboardAlertResource"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Patient profile not found"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/dialysis-sessions": {
+            "get": {
+                "tags": [
+                    "DialysisSessionsApiSection"
+                ],
+                "summary": "Get Patient Dialysis Sessions",
+                "description": "Get the authenticated patient's dialysis sessions within a specified date range.",
+                "operationId": "getPatientDialysisSessions",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    },
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "description": "Start date in Y-m-d format. Defaults to today.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2026-09-26"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "description": "End date in Y-m-d format. Defaults to 30 days from today.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2026-10-10"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Dialysis sessions retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/DialysisSessionResource"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Patient profile not found."
+                    },
+                    "422": {
+                        "description": "Validation error."
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/dialysis-sessions/next": {
+            "get": {
+                "tags": [
+                    "DialysisSessionsApiSection"
+                ],
+                "summary": "Get next dialysis session",
+                "description": "Returns the next upcoming dialysis session for the authenticated patient.",
+                "operationId": "9cff358a1710eada3f7e7db435e2339d",
+                "responses": {
+                    "200": {
+                        "description": "Next dialysis session retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": null,
+                                            "nullable": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/DialysisSessionResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Patient profile not found"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/dialysis-sessions/{dialysisSession}": {
+            "get": {
+                "tags": [
+                    "DialysisSessionsApiSection"
+                ],
+                "summary": "Get Dialysis Session Details",
+                "description": "Get details of a dialysis session belonging to the authenticated patient.",
+                "operationId": "getPatientDialysisSessionDetails",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    },
+                    {
+                        "name": "dialysisSession",
+                        "in": "path",
+                        "description": "Dialysis session ID.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        },
+                        "example": 15
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Dialysis session retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/DialysisSessionDetailsResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized access to this dialysis session."
+                    },
+                    "404": {
+                        "description": "Dialysis session or patient profile not found."
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/dialysis-sessions/{dialysisSession}/confirm": {
+            "post": {
+                "tags": [
+                    "DialysisSessionsApiSection"
+                ],
+                "summary": "Confirm dialysis session attendance",
+                "description": "Allows the authenticated patient to confirm that they intend to attend a scheduled dialysis session.",
+                "operationId": "677231e850a0fbefb1266f2815f4d1fb",
+                "parameters": [
+                    {
+                        "name": "dialysisSession",
+                        "in": "path",
+                        "description": "Dialysis session ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 15
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Dialysis session confirmed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Dialysis session confirmed successfully."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 15
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "confirmed"
+                                                },
+                                                "scheduled_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2026-09-27 09:00:00"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized"
+                    },
+                    "422": {
+                        "description": "Session cannot be confirmed"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/dialysis-sessions/{dialysisSession}/issues": {
+            "get": {
+                "tags": [
+                    "Dialysis Session Issues"
+                ],
+                "summary": "Get issues reported during a dialysis session",
+                "operationId": "d761039509b6cdef320f026eaa215430",
+                "parameters": [
+                    {
+                        "name": "dialysisSession",
+                        "in": "path",
+                        "description": "Dialysis session ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 15
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Session issues",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/DialysisSessionIssueResource"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized session"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Dialysis Session Issues"
+                ],
+                "summary": "Report an issue during a dialysis session",
+                "operationId": "bcd79e95a98d0c5494b6333248c7e170",
+                "parameters": [
+                    {
+                        "name": "dialysisSession",
+                        "in": "path",
+                        "description": "Dialysis session ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 15
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "issue_type",
+                                    "severity"
+                                ],
+                                "properties": {
+                                    "issue_type": {
+                                        "type": "string",
+                                        "example": "dizziness",
+                                        "enum": [
+                                            "dizziness",
+                                            "severe_fatigue",
+                                            "nausea_pain",
+                                            "cramps",
+                                            "machine_problem",
+                                            "needle_problem",
+                                            "other"
+                                        ]
+                                    },
+                                    "severity": {
+                                        "type": "string",
+                                        "example": "moderate",
+                                        "enum": [
+                                            "mild",
+                                            "moderate",
+                                            "severe"
+                                        ]
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "أشعر بدوخة منذ عدة دقائق",
+                                        "nullable": true
+                                    },
+                                    "reported_at": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2026-09-28T14:30:00+03:00",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Issue reported successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "تم تسجيل المشكلة بنجاح"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/DialysisSessionIssueResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized session"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/dialysis-session-issues/history": {
+            "get": {
+                "tags": [
+                    "Dialysis Session Issues"
+                ],
+                "summary": "Get patient's dialysis issues history",
+                "operationId": "d6a9e43ef12752dc0f3d586962d435e7",
+                "parameters": [
+                    {
+                        "name": "reported_at_from",
+                        "in": "query",
+                        "description": "Start date",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2026-09-01"
+                        }
+                    },
+                    {
+                        "name": "reported_at_from_to",
+                        "in": "query",
+                        "description": "End date",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2026-09-28"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Issue status",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "open",
+                                "acknowledged",
+                                "resolved"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Issues history",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/DialysisSessionIssueResource"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/doctor-consultations": {
+            "get": {
+                "tags": [
+                    "Doctor Consultations"
+                ],
+                "summary": "Get patient's consultations",
+                "operationId": "8ea7870e981e44a985d7b3c0b50acb4e",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Consultation Status",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pending",
+                                "answered",
+                                "closed"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Consultations history"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Doctor Consultations"
+                ],
+                "summary": "Send consultation to doctor",
+                "operationId": "37a2cbe781d7d1fbace440d010e455a8",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "doctor_id",
+                                    "type",
+                                    "message"
+                                ],
+                                "properties": {
+                                    "doctor_id": {
+                                        "type": "integer",
+                                        "example": 3
+                                    },
+                                    "consultation_type": {
+                                        "description": "consultation type id ",
+                                        "type": "number"
+                                    },
+                                    "message": {
+                                        "type": "string",
+                                        "example": "هل يمكنني أخذ الدواء قبل جلسة الغسيل؟"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Consultation sent"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/family/invitations": {
+            "get": {
+                "tags": [
+                    "Family Invitations"
+                ],
+                "summary": "Get patient family invitations",
+                "description": "Retrieve all family invitations sent by the authenticated patient.",
+                "operationId": "getPatientFamilyInvitations",
+                "responses": {
+                    "200": {
+                        "description": "Family invitations retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/FamilyInvitationList"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Only patients can access family invitations"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/family/invitations/{invitation}": {
+            "get": {
+                "tags": [
+                    "Family Invitations"
+                ],
+                "summary": "Get family invitation details",
+                "description": "Retrieve details of a family invitation created by the authenticated patient, including the family member and their permissions for this patient.",
+                "operationId": "getFamilyInvitationDetails",
+                "parameters": [
+                    {
+                        "name": "invitation",
+                        "in": "path",
+                        "description": "Family invitation ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 12
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Family invitation details retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/FamilyInvitationDetails"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated."
+                    },
+                    "403": {
+                        "description": "Only patients can access family invitations."
+                    },
+                    "404": {
+                        "description": "Invitation not found."
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/family-members/invite": {
+            "post": {
+                "tags": [
+                    "Family Invitations"
+                ],
+                "summary": "User  register family member info API ",
+                "description": "Send an invitation to a family member with selected permissions.",
+                "operationId": "sendFamilyInvitation",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_key"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_name"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_type"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateFamilyInvitation"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation with status = true and user object"
+                    },
+                    "422": {
+                        "description": "status = true : User not activated || status = false : User not found or password is not correct"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/family/invitation/{token}": {
+            "get": {
+                "tags": [
+                    "Family Invitations"
+                ],
+                "summary": "Get family invitation details",
+                "description": "Retrieve safe public information about a family invitation using its invitation token.",
+                "operationId": "getFamilyInvitation",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "path",
+                        "description": "Invitation token",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "0f36055d230a3098d86048b462f7c79d0a6ebda2cb963c1e12eb02c3e9aa0f8e"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Invitation retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invitation retrieved successfully."
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/FamilyInvitation"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Invalid invitation token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid or expired invitation."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invitation is no longer available",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "This invitation is no longer available."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/family/invitations/{token}/register": {
+            "post": {
+                "tags": [
+                    "Family Invitations"
+                ],
+                "summary": "Register as a family member",
+                "description": "Create a new family account and accept a pending family invitation.",
+                "operationId": "registerFamilyInvitation",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "path",
+                        "description": "Family invitation token",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "AbCdEf123456789..."
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FamilyMemberRegister"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Family account created and invitation accepted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Family account created and invitation accepted successfully."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "user": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 25
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "Sara Ahmed"
+                                                        },
+                                                        "mobile": {
+                                                            "type": "string",
+                                                            "example": "059XXXXXXX"
+                                                        },
+                                                        "role": {
+                                                            "type": "string",
+                                                            "example": "family"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "token": {
+                                                    "type": "string",
+                                                    "example": "1|abcdefghijklmnopqrstuvwxyz..."
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Invalid invitation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid or expired invitation."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Mobile number already registered",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "An account already exists with this mobile number. Please login."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error or invitation unavailable"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/family/invitations/{token}/accept": {
+            "post": {
+                "tags": [
+                    "Family Invitations"
+                ],
+                "summary": "Accept family invitation",
+                "description": "Accept a pending family invitation for an existing family account.",
+                "operationId": "acceptFamilyInvitation",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "path",
+                        "description": "Family invitation token",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "AbCdEf123456789..."
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Invitation accepted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Family invitation accepted successfully."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "patient_id": {
+                                                    "type": "integer",
+                                                    "example": 7
+                                                },
+                                                "family_member_id": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "relationship": {
+                                                    "type": "string",
+                                                    "example": "mother"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "User is not a family member",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Only family accounts can accept family invitations."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Invalid invitation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid or expired invitation."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Invitation already accepted or relationship already exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "This invitation has already been accepted."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invitation expired or mobile does not match",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The mobile number does not match the invitation."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/family/members/permission-types": {
+            "get": {
+                "tags": [
+                    "Family Permissions"
+                ],
+                "summary": "Get family permission types",
+                "description": "Retrieve all available permission types that can be assigned to a family member.",
+                "operationId": "getFamilyPermissionTypes",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Family permission types retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Family permission types retrieved successfully."
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/FamilyPermissionType"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated."
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/family/members/{patientFamilyMember}/permissions": {
+            "put": {
+                "tags": [
+                    "Family Permissions"
+                ],
+                "summary": "Update family member permissions",
+                "description": "Update the permissions of a family member for the authenticated patient.",
+                "operationId": "updateFamilyMemberPermissions",
+                "parameters": [
+                    {
+                        "name": "patientFamilyMember",
+                        "in": "path",
+                        "description": "Patient family member ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 7
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "permissions"
+                                ],
+                                "properties": {
+                                    "permissions": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "enum": [
+                                                "view_medications",
+                                                "view_dialysis_sessions",
+                                                "view_fluid_data",
+                                                "view_symptoms",
+                                                "view_labs",
+                                                "view_measurements",
+                                                "receive_alerts"
+                                            ]
+                                        },
+                                        "example": [
+                                            "view_medications",
+                                            "view_fluid_data",
+                                            "receive_alerts"
+                                        ],
+                                        "minItems": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Family member permissions updated successfully."
+                    },
+                    "401": {
+                        "description": "Unauthenticated."
+                    },
+                    "403": {
+                        "description": "Only the patient can manage family member permissions."
+                    },
+                    "404": {
+                        "description": "Family member relationship not found."
+                    },
+                    "422": {
+                        "description": "Validation error."
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/family/members/{patientFamilyMember}/revoke": {
+            "patch": {
+                "tags": [
+                    "Family Permissions"
+                ],
+                "summary": "Revoke family member access",
+                "description": "Revoke a family member's access to the authenticated patient's data.",
+                "operationId": "revokeFamilyMemberAccess",
+                "parameters": [
+                    {
+                        "name": "patientFamilyMember",
+                        "in": "path",
+                        "description": "Patient family member ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 7
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Family member access revoked successfully."
+                    },
+                    "401": {
+                        "description": "Unauthenticated."
+                    },
+                    "404": {
+                        "description": "Family member relationship not found."
+                    },
+                    "422": {
+                        "description": "Family member access is already revoked."
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/family/members/{patientFamilyMember}/restore": {
+            "patch": {
+                "tags": [
+                    "Family Permissions"
+                ],
+                "summary": "Restore family member access",
+                "description": "Restore a revoked family member's access to the authenticated patient's data and assign new permissions.",
+                "operationId": "restoreFamilyMemberAccess",
+                "parameters": [
+                    {
+                        "name": "patientFamilyMember",
+                        "in": "path",
+                        "description": "Patient family member ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 7
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "permissions"
+                                ],
+                                "properties": {
+                                    "permissions": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "enum": [
+                                                "view_medications",
+                                                "view_dialysis_sessions",
+                                                "view_fluid_data",
+                                                "view_symptoms",
+                                                "view_labs",
+                                                "view_measurements",
+                                                "receive_alerts"
+                                            ]
+                                        },
+                                        "example": [
+                                            "view_medications",
+                                            "view_fluid_data",
+                                            "receive_alerts"
+                                        ],
+                                        "minItems": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Family member access restored successfully."
+                    },
+                    "401": {
+                        "description": "Unauthenticated."
+                    },
+                    "404": {
+                        "description": "Family member relationship not found."
+                    },
+                    "422": {
+                        "description": "Family member access is not revoked or validation failed."
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/fluid-logs": {
+            "get": {
+                "tags": [
+                    "FluidLogApiSection"
+                ],
+                "summary": "Get user fluid logs API",
+                "description": "Get user  fluid logs today service",
+                "operationId": "GetUserFluidLog",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation with status = true and notifications array of objects"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/fluid-logs/history": {
+            "get": {
+                "tags": [
+                    "FluidLogApiSection"
+                ],
+                "summary": "Get user history fluid logs API",
+                "description": "Get user history  fluid logs service",
+                "operationId": "GetHistoryFluidLog",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation with status = true and fluid logs array of objects"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/fluid-logs/add": {
+            "post": {
+                "tags": [
+                    "FluidLogApiSection"
+                ],
+                "summary": "add fluid log API",
+                "description": "add fluid log returns fluid lig object",
+                "operationId": "addFluidLog",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_key"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_name"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_type"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FluidLog"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "451": {
+                        "description": "Not verified : User need confirm mobile",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/user/fluid-logs/summary": {
+            "get": {
+                "tags": [
+                    "FluidLogApiSection"
+                ],
+                "summary": "Get today's fluid intake summary for dashboard",
+                "description": "Returns the authenticated patient's fluid intake summary for the current day.",
+                "operationId": "439e7a6166155be881b2088e67acba57",
+                "responses": {
+                    "200": {
+                        "description": "Fluid summary retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": null,
+                                            "nullable": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/FluidLogSummaryResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Patient profile not found"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/health-measurements": {
+            "get": {
+                "tags": [
+                    "Health Measurements"
+                ],
+                "summary": "Get health measurements",
+                "description": "Get health measurements history for the authenticated patient.",
+                "operationId": "d5ef498a0fa91d63d4ef61b1c3052bb8",
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description": "Measurement type",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "weight",
+                                "blood_pressure",
+                                "heart_rate",
+                                "temperature",
+                                "blood_sugar"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "measured_at_from",
+                        "in": "query",
+                        "description": "Start date",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "measured_at_to",
+                        "in": "query",
+                        "description": "End date",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Health measurements retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": null,
+                                            "nullable": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/HealthMeasurementResource"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Health Measurements"
+                ],
+                "summary": "Store health measurement",
+                "description": "Store a new health measurement for the authenticated patient.",
+                "operationId": "8fa83aef2fbb57e801face0657b97fc5",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/HealthMeasurementRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Health measurement created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Health measurement created successfully."
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/HealthMeasurementResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Patient profile not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/health-measurements/summary": {
+            "get": {
+                "tags": [
+                    "Health Measurements"
+                ],
+                "summary": "Get health measurements summary for dashboard",
+                "description": "Get the latest weight, blood pressure and heart rate measurements.",
+                "operationId": "fa1db93b93ffc545bbfa3e95af6e027e",
+                "responses": {
+                    "200": {
+                        "description": "Summary retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": null,
+                                            "nullable": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/HealthMeasurementSummaryResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Patient profile not found"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
             }
         },
         "/api/v1/user/update_fcm_token": {
@@ -557,6 +2177,528 @@
                 ]
             }
         },
+        "/api/v1/user/read_all_notification": {
+            "post": {
+                "tags": [
+                    "NotificationsApiSection"
+                ],
+                "summary": "read all user notifications",
+                "description": "read all user notifications",
+                "operationId": "ReadAllNotification",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation with status = true and notifications array of objects"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/my_medicine": {
+            "get": {
+                "tags": [
+                    "PatientMedicationsApiSection"
+                ],
+                "summary": "Get Patient Medicines logs API",
+                "description": "Get Patient Medicines service",
+                "operationId": "GetPatientMedications",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation with status = true and notifications array of objects"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/medicine_details": {
+            "post": {
+                "tags": [
+                    "PatientMedicationsApiSection"
+                ],
+                "summary": "get Patient Medicine Details",
+                "description": "me",
+                "operationId": "medicineDetails",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "patient_medicine_id"
+                                ],
+                                "properties": {
+                                    "patient_medicine_id": {
+                                        "description": "patient medicine  id",
+                                        "type": "number"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation with status = true and patient medicine object"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/medications/schedule": {
+            "get": {
+                "tags": [
+                    "PatientMedicationsApiSection"
+                ],
+                "summary": "Get Patient Medication Schedule",
+                "description": "Get patient's medication schedule for a specific date.",
+                "operationId": "getPatientMedicationSchedule",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    },
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "description": "Schedule date. Defaults to today.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2026-09-26"
+                        }
+                    },
+                    {
+                        "name": "period",
+                        "in": "query",
+                        "description": "Filter medications by time period.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "all",
+                            "enum": [
+                                "all",
+                                "morning",
+                                "afternoon",
+                                "evening"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Medication schedule retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/PatientMedicationScheduleResponseResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated."
+                    },
+                    "404": {
+                        "description": "Patient profile not found."
+                    },
+                    "422": {
+                        "description": "Validation error."
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/medications/log/{medicationLog}/taken": {
+            "post": {
+                "tags": [
+                    "PatientMedicationsApiSection"
+                ],
+                "summary": "mark patient medicine taken",
+                "description": "markTaken",
+                "operationId": "markTaken",
+                "parameters": [
+                    {
+                        "name": "medicationLog",
+                        "in": "path",
+                        "description": "Patient Medicine Log ID (Log_id)",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 7
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/language"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation with status = true and patient medicine object"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/medications/log/{medicationLog}/snooze": {
+            "post": {
+                "tags": [
+                    "PatientMedicationsApiSection"
+                ],
+                "summary": "mark patient medicine snooze",
+                "description": "snooze the medicine",
+                "operationId": "snooze",
+                "parameters": [
+                    {
+                        "name": "medicationLog",
+                        "in": "path",
+                        "description": "Patient Medicine Log ID (Log_id)",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 7
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/language"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "minutes"
+                                ],
+                                "properties": {
+                                    "minutes": {
+                                        "description": "minutes",
+                                        "type": "number"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation with status = true and patient medicine object"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/symptoms": {
+            "get": {
+                "tags": [
+                    "Patient Symptoms"
+                ],
+                "summary": "Get available symptoms",
+                "operationId": "b8a9de60ec2bc35cf17999151a40c4c1",
+                "responses": {
+                    "200": {
+                        "description": "Symptoms retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/SymptomResource"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Patient Symptoms"
+                ],
+                "summary": "Record a patient symptom",
+                "operationId": "83115a2412a7ad3cd1b0810da60922b0",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "symptom_id",
+                                    "severity",
+                                    "recorded_at"
+                                ],
+                                "properties": {
+                                    "symptom_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "severity": {
+                                        "type": "integer",
+                                        "example": 4,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "notes": {
+                                        "type": "string",
+                                        "example": "Feeling shortness of breath after dialysis.",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Symptom recorded successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PatientSymptomResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/symptoms/history": {
+            "get": {
+                "tags": [
+                    "Patient Symptoms"
+                ],
+                "summary": "Get patient symptoms history",
+                "operationId": "d627fefdbac8489fdea644559c330cf7",
+                "parameters": [
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        },
+                        "example": "2026-09-01"
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        },
+                        "example": "2026-09-28"
+                    },
+                    {
+                        "name": "symptom_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    },
+                    {
+                        "name": "severity",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 5,
+                            "minimum": 1
+                        },
+                        "example": 4
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Symptoms history retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/PatientSymptomResource"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/symptoms/{patientSymptom}": {
+            "get": {
+                "tags": [
+                    "Patient Symptoms"
+                ],
+                "summary": "Get patient symptom details",
+                "operationId": "a8da5304a5dcd322ec7d382368c60c20",
+                "parameters": [
+                    {
+                        "name": "patientSymptom",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Symptom details retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PatientSymptomResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Symptom record not found"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/dashboard/smart-note": {
+            "get": {
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Get patient smart note",
+                "operationId": "9ec713198192b5dc864ff8832d82abba",
+                "responses": {
+                    "200": {
+                        "description": "Smart note retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "oneOf": [
+                                                {
+                                                    "$ref": "#/components/schemas/SmartNoteResource"
+                                                }
+                                            ],
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Patient profile not found"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
         "/api/v1/user/me": {
             "get": {
                 "tags": [
@@ -671,35 +2813,51 @@
                     }
                 ]
             }
-        },
-        "/api/v1/user/get_family_member": {
-            "get": {
-                "tags": [
-                    "FamilyMemberApiSection"
-                ],
-                "summary": "getFamilyMember",
-                "description": "getFamilyMember",
-                "operationId": "getFamilyMember",
-                "responses": {
-                    "200": {
-                        "description": "successful operation with status = true and user object"
-                    },
-                    "422": {
-                        "description": "status = true : User not activated || status = false : User not found or password is not correct"
-                    }
-                },
-                "security": [
-                    {
-                        "api_key": []
-                    }
-                ]
-            }
         }
     },
     "components": {
         "schemas": {
-            "RegisterFamilyInfo": {
-                "title": "RegisterFamilyInfo",
+            "ApplicationRate": {
+                "title": "ApplicationRate",
+                "required": [
+                    "rate",
+                    "comment"
+                ],
+                "properties": {
+                    "rate": {
+                        "description": "rate number 1,2,3,4,5",
+                        "type": "number"
+                    },
+                    "comment": {
+                        "description": "any comment about application",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "DateRangeRequest": {
+                "title": "Health DateRangeRequest",
+                "description": "Date range used to filter health measurements.",
+                "properties": {
+                    "from": {
+                        "description": "Start date of the requested range.",
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-09-01",
+                        "nullable": true
+                    },
+                    "to": {
+                        "description": "End date of the requested range.",
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-09-30",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "CreateFamilyInvitation": {
+                "title": "CreateFamilyInvitation",
                 "required": [
                     "mobile",
                     "relationship"
@@ -715,23 +2873,129 @@
                     },
                     "relationship": {
                         "description": "User relationship",
+                        "type": "string",
+                        "example": "sister",
+                        "enum": [
+                            "father",
+                            "mother",
+                            "brother",
+                            "sister",
+                            "son",
+                            "daughter",
+                            "husband",
+                            "wife",
+                            "other"
+                        ]
+                    },
+                    "permissions": {
+                        "description": "Permissions granted to the family member",
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "example": "view_medications"
+                        },
+                        "enum": [
+                            "view_medications",
+                            "view_dialysis_sessions",
+                            "view_fluid_data",
+                            "view_symptoms",
+                            "view_labs",
+                            "view_measurements",
+                            "receive_alerts"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "FamilyMemberRegister": {
+                "title": "FamilyMemberRegister",
+                "required": [
+                    "name",
+                    "mobile",
+                    "password"
+                ],
+                "properties": {
+                    "name": {
+                        "description": "family member name",
+                        "type": "string",
+                        "example": "Besan Marwan"
+                    },
+                    "mobile": {
+                        "description": "family member Mobile",
+                        "type": "number",
+                        "example": "0597501686"
+                    },
+                    "password": {
+                        "description": "Family Member Password",
+                        "type": "string",
+                        "format": "password",
+                        "example": "password@123"
+                    }
+                },
+                "type": "object"
+            },
+            "FluidLog": {
+                "title": "FluidLog",
+                "required": [
+                    "amount_ml"
+                ],
+                "properties": {
+                    "fluid_type": {
+                        "description": "drink/fluid type ",
                         "type": "string"
                     },
-                    "can_view_health_data": {
-                        "description": "can view health data",
-                        "type": "number",
+                    "amount_ml": {
+                        "description": "fluid amount in ml",
+                        "type": "number"
+                    }
+                },
+                "type": "object"
+            },
+            "HealthMeasurementRequest": {
+                "title": "Health Measurement Request",
+                "description": "Request for recording a health measurement.",
+                "required": [
+                    "type",
+                    "value",
+                    "measured_at"
+                ],
+                "properties": {
+                    "type": {
+                        "description": "Type of health measurement.",
+                        "type": "string",
+                        "example": "blood_pressure",
                         "enum": [
-                            0,
-                            1
+                            "weight",
+                            "blood_pressure",
+                            "heart_rate",
+                            "temperature",
+                            "blood_sugar"
                         ]
                     },
-                    "can_receive_alerts\t": {
-                        "description": "can receive alerts",
+                    "value": {
+                        "description": "Primary measurement value. For blood pressure, this represents systolic pressure.",
                         "type": "number",
-                        "enum": [
-                            0,
-                            1
-                        ]
+                        "format": "float",
+                        "example": 128
+                    },
+                    "value_secondary": {
+                        "description": "Secondary measurement value. Required for blood pressure and represents diastolic pressure.",
+                        "type": "number",
+                        "format": "float",
+                        "example": 82,
+                        "nullable": true
+                    },
+                    "measured_at": {
+                        "description": "Date and time when the measurement was taken.",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-09-24 09:30:00"
+                    },
+                    "notes": {
+                        "description": "Optional notes about the measurement.",
+                        "type": "string",
+                        "example": "Measured before dialysis.",
+                        "nullable": true
                     }
                 },
                 "type": "object"
@@ -770,6 +3034,11 @@
                     "sessions_per_week"
                 ],
                 "properties": {
+                    "national_id": {
+                        "description": "Patient national id",
+                        "type": "string",
+                        "format": "string"
+                    },
                     "birth_date": {
                         "description": "User birth date",
                         "type": "string",
@@ -782,6 +3051,14 @@
                             "male",
                             "female"
                         ]
+                    },
+                    "address": {
+                        "description": "Patient Address",
+                        "type": "string"
+                    },
+                    "current_job": {
+                        "description": "Patient Job",
+                        "type": "string"
                     },
                     "blood_type": {
                         "description": "User blood type",
@@ -858,6 +3135,19 @@
                             "female"
                         ]
                     },
+                    "national_id": {
+                        "description": "Patient national id",
+                        "type": "string",
+                        "format": "string"
+                    },
+                    "address": {
+                        "description": "Patient Address",
+                        "type": "string"
+                    },
+                    "current_job": {
+                        "description": "Patient Job",
+                        "type": "string"
+                    },
                     "blood_type": {
                         "description": "User blood type",
                         "type": "string",
@@ -930,6 +3220,32 @@
                 },
                 "type": "object"
             },
+            "RateResource": {
+                "title": "Rate Response",
+                "properties": {
+                    "id": {
+                        "description": "user id",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "rate": {
+                        "description": "rate number",
+                        "type": "number"
+                    },
+                    "comment": {
+                        "description": "comment about application",
+                        "type": "string"
+                    }
+                },
+                "type": "object",
+                "example": {
+                    "rateObj": {
+                        "id": "1",
+                        "rate": 4,
+                        "comment": "comment about application"
+                    }
+                }
+            },
             "Center Resource": {
                 "title": "Center Resource",
                 "properties": {
@@ -975,6 +3291,420 @@
                         }
                     ]
                 }
+            },
+            "DashboardAlertResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 15
+                    },
+                    "type": {
+                        "type": "string",
+                        "example": "fluid_limit_exceeded"
+                    },
+                    "severity": {
+                        "type": "string",
+                        "example": "warning"
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "تنبيه السوائل"
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "لقد تجاوزت الحد اليومي المسموح من السوائل."
+                    },
+                    "is_read": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-09-26T12:30:00+03:00"
+                    }
+                },
+                "type": "object"
+            },
+            "DialysisSessionDetailsResource": {
+                "title": "Dialysis Session Details Resource",
+                "description": "Detailed dialysis session information including session record.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 15
+                    },
+                    "scheduled_at": {
+                        "type": "string",
+                        "example": "2026-09-27 14:00:00"
+                    },
+                    "started_at": {
+                        "type": "string",
+                        "example": "2026-09-27 14:10:00",
+                        "nullable": true
+                    },
+                    "ended_at": {
+                        "type": "string",
+                        "example": "2026-09-27 18:00:00",
+                        "nullable": true
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "completed",
+                        "enum": [
+                            "scheduled",
+                            "confirmed",
+                            "completed",
+                            "missed",
+                            "cancelled"
+                        ]
+                    },
+                    "session_type": {
+                        "type": "string",
+                        "example": "hemodialysis",
+                        "enum": [
+                            "hemodialysis",
+                            "peritoneal",
+                            "other"
+                        ]
+                    },
+                    "center": {
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 3
+                            },
+                            "name": {
+                                "type": "string",
+                                "example": "Al-Shifa Dialysis Center"
+                            },
+                            "city": {
+                                "type": "string",
+                                "example": "Gaza",
+                                "nullable": true
+                            },
+                            "address": {
+                                "type": "string",
+                                "example": "Al-Rimal",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "doctor": {
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 7
+                            },
+                            "name": {
+                                "type": "string",
+                                "example": "Dr. Ahmad"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "notes": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "doctor_instructions": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "record": {
+                        "properties": {
+                            "pre_weight": {
+                                "type": "number",
+                                "format": "float",
+                                "example": 72.5,
+                                "nullable": true
+                            },
+                            "post_weight": {
+                                "type": "number",
+                                "format": "float",
+                                "example": 70.8,
+                                "nullable": true
+                            },
+                            "blood_pressure_before": {
+                                "properties": {
+                                    "systolic": {
+                                        "type": "integer",
+                                        "example": 140,
+                                        "nullable": true
+                                    },
+                                    "diastolic": {
+                                        "type": "integer",
+                                        "example": 85,
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object",
+                                "nullable": true
+                            },
+                            "blood_pressure_after": {
+                                "properties": {
+                                    "systolic": {
+                                        "type": "integer",
+                                        "example": 130,
+                                        "nullable": true
+                                    },
+                                    "diastolic": {
+                                        "type": "integer",
+                                        "example": 80,
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object",
+                                "nullable": true
+                            },
+                            "heart_rate": {
+                                "type": "integer",
+                                "example": 78,
+                                "nullable": true
+                            },
+                            "fluid_removed_ml": {
+                                "type": "number",
+                                "format": "float",
+                                "example": 1700,
+                                "nullable": true
+                            },
+                            "session_notes": {
+                                "type": "string",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "DialysisSessionIssueResource": {
+                "title": "Dialysis Session Issue Resource",
+                "description": "Patient reported issue during a dialysis session",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "dialysis_session_id": {
+                        "type": "integer",
+                        "example": 15
+                    },
+                    "issue_type": {
+                        "type": "string",
+                        "example": "dizziness",
+                        "enum": [
+                            "dizziness",
+                            "severe_fatigue",
+                            "nausea_pain",
+                            "cramps",
+                            "machine_problem",
+                            "needle_problem",
+                            "other"
+                        ]
+                    },
+                    "severity": {
+                        "type": "string",
+                        "example": "moderate",
+                        "enum": [
+                            "mild",
+                            "moderate",
+                            "severe"
+                        ]
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "أشعر بدوخة أثناء الجلسة",
+                        "nullable": true
+                    },
+                    "reported_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-09-28T14:30:00+03:00"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "open",
+                        "enum": [
+                            "open",
+                            "acknowledged",
+                            "resolved"
+                        ]
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-09-28T14:30:00+03:00"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-09-28T14:30:00+03:00"
+                    }
+                },
+                "type": "object"
+            },
+            "DialysisSessionResource": {
+                "description": "Patient dialysis session",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 15
+                    },
+                    "scheduled_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-09-30 09:00:00"
+                    },
+                    "started_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "ended_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "scheduled",
+                        "enum": [
+                            "scheduled",
+                            "confirmed",
+                            "completed",
+                            "missed",
+                            "cancelled"
+                        ]
+                    },
+                    "session_type": {
+                        "type": "string",
+                        "example": "hemodialysis",
+                        "enum": [
+                            "hemodialysis",
+                            "peritoneal",
+                            "other"
+                        ]
+                    },
+                    "center": {
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 2
+                            },
+                            "name": {
+                                "type": "string",
+                                "example": "مركز الأمل"
+                            },
+                            "city": {
+                                "type": "string",
+                                "example": "غزة",
+                                "nullable": true
+                            },
+                            "address": {
+                                "type": "string",
+                                "example": "شارع الوحدة",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "doctor": {
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 5
+                            },
+                            "name": {
+                                "type": "string",
+                                "example": "Dr. Ahmed"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "notes": {
+                        "type": "string",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "doctor_instructions": {
+                        "type": "string",
+                        "example": "Arrive 15 minutes before the session.",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "DoctorConsultationResource": {
+                "title": "Doctor Consultation Resource",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "doctor": {
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 3
+                            },
+                            "name": {
+                                "type": "string",
+                                "example": "د. طارق المنصور"
+                            },
+                            "specialization": {
+                                "type": "string",
+                                "example": "استشاري أمراض وزراعة الكلى"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "type": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/GeneralDataResource"
+                        }
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "أشعر بالتعب بعد جلسة الغسيل"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "pending",
+                        "enum": [
+                            "pending",
+                            "answered",
+                            "closed"
+                        ]
+                    },
+                    "answer": {
+                        "type": "string",
+                        "example": "يرجى متابعة الضغط والتواصل مع المركز إذا استمرت الأعراض.",
+                        "nullable": true
+                    },
+                    "sent_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "answered_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
             },
             "Doctor Resource": {
                 "title": "Doctor Resource",
@@ -1044,6 +3774,210 @@
                     "dialysis_center_id": 1
                 }
             },
+            "FamilyInvitationDetails": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 12
+                    },
+                    "mobile": {
+                        "type": "string",
+                        "example": "059XXXXXXX",
+                        "nullable": true
+                    },
+                    "relationship": {
+                        "type": "string",
+                        "example": "brother",
+                        "nullable": true
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "accepted",
+                        "enum": [
+                            "pending",
+                            "accepted",
+                            "rejected",
+                            "expired",
+                            "cancelled"
+                        ]
+                    },
+                    "expires_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-09-30T10:00:00Z",
+                        "nullable": true
+                    },
+                    "accepted_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-09-24T08:30:00Z",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-09-23T10:00:00Z"
+                    },
+                    "family_member": {
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 7
+                            },
+                            "user_id": {
+                                "type": "integer",
+                                "example": 25
+                            },
+                            "name": {
+                                "type": "string",
+                                "example": "Ahmed Ali"
+                            },
+                            "mobile": {
+                                "type": "string",
+                                "example": "059XXXXXXX"
+                            },
+                            "status": {
+                                "type": "string",
+                                "example": "active"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "permissions": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "id": {
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "example": "view_medications"
+                                },
+                                "label": {
+                                    "type": "string",
+                                    "example": "View Medications"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "FamilyInvitationList": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 12
+                    },
+                    "mobile": {
+                        "type": "string",
+                        "example": "059XXXXXXX",
+                        "nullable": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Besan",
+                        "nullable": true
+                    },
+                    "relationship": {
+                        "type": "string",
+                        "example": "brother",
+                        "nullable": true
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "pending",
+                        "enum": [
+                            "pending",
+                            "accepted",
+                            "rejected",
+                            "expired",
+                            "cancelled"
+                        ]
+                    },
+                    "expires_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-09-30T10:00:00Z",
+                        "nullable": true
+                    },
+                    "accepted_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-09-24T08:30:00Z",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-09-23T10:00:00Z"
+                    }
+                },
+                "type": "object"
+            },
+            "FamilyInvitation": {
+                "title": "FamilyInvitation",
+                "description": "Public information about a family invitation",
+                "properties": {
+                    "id": {
+                        "description": "Invitation  ID",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "status": {
+                        "description": "invitation status",
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "accepted",
+                            "rejected",
+                            "expired",
+                            "cancelled"
+                        ]
+                    },
+                    "patient_name": {
+                        "description": "Patient name",
+                        "type": "string"
+                    },
+                    "mobile": {
+                        "description": "Doctor mobile number",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "relationship": {
+                        "description": "Family Member relationship",
+                        "type": "string"
+                    },
+                    "expires_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "next_step": {
+                        "type": "string",
+                        "example": "register",
+                        "nullable": true,
+                        "enum": [
+                            "login",
+                            "register"
+                        ]
+                    }
+                },
+                "type": "object",
+                "example": {
+                    "id": 1,
+                    "status": "pending",
+                    "patient_name": "Besan",
+                    "mobile": "0597501686",
+                    "relationship": "sister",
+                    "expires_at": "2026-09-26T18:56:00.000000Z",
+                    "next_step": "register"
+                }
+            },
             "Family Member Resource": {
                 "title": "Family Member Resource",
                 "properties": {
@@ -1110,6 +4044,410 @@
                     "specialization": "Nephrology",
                     "license_number": "DOC-0001",
                     "dialysis_center_id": 1
+                }
+            },
+            "FamilyPermissionType": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 12
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "view_medicinne"
+                    },
+                    "label": {
+                        "type": "string",
+                        "example": "مشاهدة سجل الادوية"
+                    }
+                },
+                "type": "object"
+            },
+            "FluidLogSummaryResource": {
+                "title": "Fluid Log Summary",
+                "description": "Today's fluid intake summary for the authenticated patient.",
+                "properties": {
+                    "daily_limit_ml": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 1500
+                    },
+                    "consumed_ml": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 850
+                    },
+                    "remaining_ml": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 650
+                    },
+                    "percentage": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 56.67
+                    },
+                    "is_exceeded": {
+                        "type": "boolean",
+                        "example": false
+                    }
+                },
+                "type": "object"
+            },
+            "HealthMeasurementResource": {
+                "title": "Health Measurement",
+                "description": "A single health measurement recorded by the patient.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 15
+                    },
+                    "type": {
+                        "type": "string",
+                        "example": "weight",
+                        "enum": [
+                            "weight",
+                            "blood_pressure",
+                            "heart_rate",
+                            "temperature",
+                            "blood_sugar"
+                        ]
+                    },
+                    "value": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 63.2
+                    },
+                    "value_secondary": {
+                        "type": "number",
+                        "format": "float",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "unit": {
+                        "type": "string",
+                        "example": "kg"
+                    },
+                    "measured_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-09-24 09:30:00"
+                    },
+                    "notes": {
+                        "type": "string",
+                        "example": "Morning measurement.",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "HealthMeasurementSummaryResource": {
+                "title": "Health Measurement Summary",
+                "description": "Latest health measurements for the authenticated patient.",
+                "properties": {
+                    "weight": {
+                        "properties": {
+                            "value": {
+                                "type": "number",
+                                "format": "float",
+                                "example": 63.2
+                            },
+                            "unit": {
+                                "type": "string",
+                                "example": "kg"
+                            },
+                            "measured_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2026-09-24 09:30:00"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "blood_pressure": {
+                        "properties": {
+                            "systolic": {
+                                "type": "number",
+                                "format": "float",
+                                "example": 128
+                            },
+                            "diastolic": {
+                                "type": "number",
+                                "format": "float",
+                                "example": 82
+                            },
+                            "unit": {
+                                "type": "string",
+                                "example": "mmHg"
+                            },
+                            "measured_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2026-09-24 09:30:00"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "heart_rate": {
+                        "properties": {
+                            "value": {
+                                "type": "number",
+                                "format": "float",
+                                "example": 78
+                            },
+                            "unit": {
+                                "type": "string",
+                                "example": "bpm"
+                            },
+                            "measured_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2026-09-24 09:30:00"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "PatientMedicationScheduleResource": {
+                "properties": {
+                    "log_id": {
+                        "type": "integer",
+                        "example": 15
+                    },
+                    "patient_medication_id": {
+                        "type": "integer",
+                        "example": 8
+                    },
+                    "medication": {
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 2
+                            },
+                            "name": {
+                                "type": "string",
+                                "example": "Renvela"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "dosage": {
+                        "type": "string",
+                        "example": "800mg",
+                        "nullable": true
+                    },
+                    "frequency": {
+                        "type": "string",
+                        "example": "3 times daily",
+                        "nullable": true
+                    },
+                    "route": {
+                        "type": "string",
+                        "example": "Oral",
+                        "nullable": true
+                    },
+                    "instructions": {
+                        "type": "string",
+                        "example": "Take with meals",
+                        "nullable": true
+                    },
+                    "scheduled_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-09-26 08:00"
+                    },
+                    "taken_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-09-26 08:05",
+                        "nullable": true
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "taken",
+                        "enum": [
+                            "pending",
+                            "taken",
+                            "snoozed",
+                            "missed",
+                            "skipped"
+                        ]
+                    },
+                    "snoozed_until": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": null,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "PatientMedicationScheduleResponseResource": {
+                "properties": {
+                    "date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-09-26"
+                    },
+                    "period": {
+                        "type": "string",
+                        "example": "morning",
+                        "enum": [
+                            "all",
+                            "morning",
+                            "afternoon",
+                            "evening"
+                        ]
+                    },
+                    "adherence": {
+                        "properties": {
+                            "total": {
+                                "type": "integer",
+                                "example": 4
+                            },
+                            "taken": {
+                                "type": "integer",
+                                "example": 3
+                            },
+                            "percentage": {
+                                "type": "integer",
+                                "example": 75
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "medications": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PatientMedicationScheduleResource"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "Symptom Resource": {
+                "title": "Symptom Resource",
+                "properties": {
+                    "id": {
+                        "description": "Symptom ID",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "description": "Symptom name",
+                        "type": "string"
+                    },
+                    "description": {
+                        "description": "Symptom description",
+                        "type": "string"
+                    },
+                    "is_critical": {
+                        "description": "the Sympotom is critical or not",
+                        "type": "number"
+                    }
+                },
+                "type": "object",
+                "example": {
+                    "id": 1,
+                    "name": "ألم في الصدر",
+                    "description": "شعور بألم أو ضغط في منطقة الصدر، ويُعد من الأعراض الحرجة التي تتطلب انتباهًا طبيًا فوريًا.",
+                    "is_critical": 1
+                }
+            },
+            "PatientSymptomResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "symptom": {
+                        "$ref": "#/components/schemas/SymptomResource"
+                    },
+                    "severity": {
+                        "type": "integer",
+                        "example": 4,
+                        "maximum": 5,
+                        "minimum": 1
+                    },
+                    "recorded_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-09-28T13:30:00+03:00"
+                    },
+                    "notes": {
+                        "type": "string",
+                        "example": "Feeling shortness of breath after dialysis.",
+                        "nullable": true
+                    },
+                    "is_critical": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "SmartNoteResource": {
+                "properties": {
+                    "type": {
+                        "description": "Transform the resource into an array.",
+                        "type": "string",
+                        "example": "success"
+                    },
+                    "key": {
+                        "type": "string",
+                        "example": "fluid_streak_3"
+                    },
+                    "priority": {
+                        "type": "integer",
+                        "example": 90
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "ملاحظة ذكية"
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "أحسنت! حافظت على الحد المسموح به من السوائل لمدة 3 أيام متتالية. استمر بهذا الأداء الرائع 👏"
+                    }
+                },
+                "type": "object"
+            },
+            "SymptomResource": {
+                "title": "Symptom Resource",
+                "properties": {
+                    "id": {
+                        "description": "Symptom ID",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "description": "Symptom name",
+                        "type": "string"
+                    },
+                    "description": {
+                        "description": "Symptom description",
+                        "type": "string"
+                    },
+                    "is_critical": {
+                        "description": "the Sympotom is critical or not",
+                        "type": "number"
+                    }
+                },
+                "type": "object",
+                "example": {
+                    "id": 1,
+                    "name": "ألم في الصدر",
+                    "description": "شعور بألم أو ضغط في منطقة الصدر، ويُعد من الأعراض الحرجة التي تتطلب انتباهًا طبيًا فوريًا.",
+                    "is_critical": 1
                 }
             },
             "UserResource": {
@@ -1253,16 +4591,52 @@
             "description": "API Package for Authantication requests"
         },
         {
+            "name": "DialysisSessionsApiSection",
+            "description": "API Package for Patient Dialysis Sessions"
+        },
+        {
+            "name": "Dialysis Session Issues",
+            "description": "Patient dialysis session issues and alerts"
+        },
+        {
+            "name": "Doctor Consultations",
+            "description": "Patient communication with doctors"
+        },
+        {
+            "name": "Family Invitations",
+            "description": "API Package for Family Invitation requests"
+        },
+        {
+            "name": "FluidLogApiSection",
+            "description": "API Package for FluidLog requests"
+        },
+        {
+            "name": "PatientMedicationsApiSection",
+            "description": "API Package for Medications requests"
+        },
+        {
+            "name": "Patient Symptoms",
+            "description": "Patient symptoms management"
+        },
+        {
+            "name": "Dashboard",
+            "description": "Dashboard"
+        },
+        {
+            "name": "Family Permissions",
+            "description": "Family Permissions"
+        },
+        {
+            "name": "Health Measurements",
+            "description": "Health Measurements"
+        },
+        {
             "name": "NotificationsApiSection",
             "description": "NotificationsApiSection"
         },
         {
             "name": "UserApiSection",
             "description": "UserApiSection"
-        },
-        {
-            "name": "FamilyMemberApiSection",
-            "description": "FamilyMemberApiSection"
         }
     ],
     "security": [

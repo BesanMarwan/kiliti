@@ -12,7 +12,7 @@ return array (
   'attached' => 'حقل :attribute تم إرفاقه بالفعل.',
   'before' => 'يجب على حقل :attribute أن يكون تاريخًا سابقًا للتاريخ :date.',
   'before_or_equal' => 'حقل :attribute يجب أن يكون تاريخا سابقا أو مطابقا للتاريخ :date.',
-  'between' => 
+  'between' =>
   array (
     'array' => 'يجب أن يحتوي حقل :attribute على عدد من العناصر بين :min و :max.',
     'file' => 'يجب أن يكون حجم ملف حقل :attribute بين :min و :max كيلوبايت.',
@@ -39,14 +39,14 @@ return array (
 
   'file' => 'الحقل :attribute يجب أن يكون ملفا.',
   'filled' => 'حقل :attribute إجباري.',
-  'gt' => 
+  'gt' =>
   array (
     'array' => 'يجب أن يحتوي حقل :attribute على أكثر من :value عناصر/عنصر.',
     'file' => 'يجب أن يكون حجم ملف حقل :attribute أكبر من :value كيلوبايت.',
     'numeric' => 'يجب أن تكون قيمة حقل :attribute أكبر من :value.',
     'string' => 'يجب أن يكون طول نّص حقل :attribute أكثر من :value حروفٍ/حرفًا.',
   ),
-  'gte' => 
+  'gte' =>
   array (
     'array' => 'يجب أن يحتوي حقل :attribute على الأقل على :value عُنصرًا/عناصر.',
     'file' => 'يجب أن يكون حجم ملف حقل :attribute على الأقل :value كيلوبايت.',
@@ -61,21 +61,21 @@ return array (
   'ipv4' => 'يجب أن يكون حقل :attribute عنوان IPv4 صحيحًا.',
   'ipv6' => 'يجب أن يكون حقل :attribute عنوان IPv6 صحيحًا.',
   'json' => 'يجب أن يكون حقل :attribute نصًا من نوع JSON.',
-  'lt' => 
+  'lt' =>
   array (
     'array' => 'يجب أن يحتوي حقل :attribute على أقل من :value عناصر/عنصر.',
     'file' => 'يجب أن يكون حجم ملف حقل :attribute أصغر من :value كيلوبايت.',
     'numeric' => 'يجب أن تكون قيمة حقل :attribute أصغر من :value.',
     'string' => 'يجب أن يكون طول نّص حقل :attribute أقل من :value حروفٍ/حرفًا.',
   ),
-  'lte' => 
+  'lte' =>
   array (
     'array' => 'يجب أن لا يحتوي حقل :attribute على أكثر من :value عناصر/عنصر.',
     'file' => 'يجب أن لا يتجاوز حجم ملف حقل :attribute :value كيلوبايت.',
     'numeric' => 'يجب أن تكون قيمة حقل :attribute مساوية أو أصغر من :value.',
     'string' => 'يجب أن لا يتجاوز طول نّص حقل :attribute :value حروفٍ/حرفًا.',
   ),
-  'max' => 
+  'max' =>
   array (
     'array' => 'يجب أن لا يحتوي حقل :attribute على أكثر من :max عناصر/عنصر.',
     'file' => 'يجب أن لا يتجاوز حجم ملف حقل :attribute :max كيلوبايت.',
@@ -84,7 +84,7 @@ return array (
   ),
   'mimes' => 'يجب أن يكون ملفًا من نوع : :values.',
   'mimetypes' => 'يجب أن يكون ملفًا من نوع : :values.',
-  'min' => 
+  'min' =>
   array (
     'array' => 'يجب أن يحتوي حقل :attribute على الأقل على :min عُنصرًا/عناصر.',
     'file' => 'يجب أن يكون حجم ملف حقل :attribute على الأقل :min كيلوبايت.',
@@ -110,7 +110,7 @@ return array (
   'required_without' => 'حقل :attribute مطلوب إذا لم يتوفّر :values.',
   'required_without_all' => 'حقل :attribute مطلوب إذا لم يتوفّر :values.',
   'same' => 'يجب أن يتطابق حقل :attribute مع :other.',
-  'size' => 
+  'size' =>
   array (
     'array' => 'يجب أن يحتوي حقل :attribute على :size عنصرٍ/عناصر بالضبط.',
     'file' => 'يجب أن يكون حجم ملف حقل :attribute :size كيلوبايت.',
@@ -124,9 +124,9 @@ return array (
   'uploaded' => 'فشل في تحميل الـ :attribute.',
   'url' => 'صيغة رابط حقل :attribute غير صحيحة.',
   'uuid' => 'حقل :attribute يجب أن يكون بصيغة UUID سليمة.',
-  'custom' => 
+  'custom' =>
   array (
-    'attribute-name' => 
+    'attribute-name' =>
     array (
       'rule-name' => 'custom-message',
     ),
@@ -136,7 +136,7 @@ return array (
   'valid_mobile_length' => 'من فضلك ادخل رقم جوال صحيح مكون من :count خانات',
      'mobile.exists'=>'رقم الجوال المدخل ليس لديه حساب',
 
-  'attributes' => 
+  'attributes' =>
   array (
     'address' => 'العنوان',
     'age' => 'العمر',
@@ -207,8 +207,17 @@ return array (
     'role_id'=>'الصلاحية',
     'new_password'=>'كلمة المرور الجديدة',
     'country_id'=>'الدولة',
- 
-     'message'=>'الرسالة'
+
+     'message'=>'الرسالة',
+      'doctor_id' => 'الطبيب',
+      'consultation_type' => 'نوع الاستشارة',
+      'symptom_id' => 'العرض ',
+      'notes' => 'ملاحظات / تفاصيل اضافية',
+      'severity' => 'شدة العرض',
+      'type' => 'نوع القياس',
+      'value' => 'القيمة الأساسية ',
+      'value_secondary' => 'القيمة الثانوية ',
+      'measured_at' => 'وقت القياس',
   ),
   'valid_string' => 'يجب ان يكون حقل :attribute باللغة الانجليزية',
   'valid_string_arabic' => 'يجب ان يكون حقل  :attribute  باللغة العربية',

@@ -19,8 +19,8 @@ return new class extends Migration
                 'governorate' => 'غزة',
                 'city' => 'غزة',
                 'address' => 'شارع الجلاء، مدينة غزة',
-                'total_machines' => null,
-                'working_machines' => null,
+                'total_machines' => rand(20,50),
+                'working_machines' => rand(20,50),
                 'status' => 'enabled',
             ],
             [
@@ -29,8 +29,8 @@ return new class extends Migration
                 'governorate' => 'خان يونس',
                 'city' => 'خان يونس',
                 'address' => 'شارع جمال عبد الناصر، خان يونس',
-                'total_machines' => null,
-                'working_machines' => null,
+                'total_machines' => rand(20,50),
+                'working_machines' => rand(20,50),
                 'status' => 'enabled',
             ],
             [
@@ -39,8 +39,8 @@ return new class extends Migration
                 'governorate' => 'دير البلح',
                 'city' => 'دير البلح',
                 'address' => 'الوسطى، دير البلح',
-                'total_machines' => null,
-                'working_machines' => null,
+                'total_machines' => rand(20,50),
+                'working_machines' => rand(20,50),
                 'status' => 'enabled',
             ],
             [

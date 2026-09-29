@@ -2,9 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\FluidLog;
 use App\Models\PersonalAccessToken;
+use App\Observers\FluidLogObserver;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Pagination\Paginator;
@@ -19,7 +20,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        FluidLog::observe(FluidLogObserver::class);
+
     }
 
     /**
@@ -48,9 +50,5 @@ class AppServiceProvider extends ServiceProvider
         \Blade::directive('lng', function ($expression) {
             return "<?php echo lng($expression); ?>";
         });
-
-        if (app()->environment('production')) {
-            URL::forceScheme('https');
-        }
     }
 }

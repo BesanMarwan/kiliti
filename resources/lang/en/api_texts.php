@@ -30,5 +30,6 @@ return array (
   'code_wrong' => 'code wrong',
   'code_valid' => 'code valid',
   'new_same_old_password' => 'This password has been used before',
+    'Medication_is_already_missed' => 'This Medicine is already missed'
 
 );

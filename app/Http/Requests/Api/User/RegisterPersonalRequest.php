@@ -15,6 +15,12 @@ use OpenApi\Attributes as OA;
     required: ["birth_date", "gender", "blood_type","dialysis_start_date", "dialysis_type", "sessions_per_week"],
     properties: [
         new OA\Property(
+            property: "national_id",
+            description: "Patient national id",
+            type: "string",
+            format: "string"
+        ),
+        new OA\Property(
             property: "birth_date",
             description: "User birth date",
             type: "string",
@@ -25,6 +31,16 @@ use OpenApi\Attributes as OA;
             description: "User gender",
             type: "string",
             enum: ["male", "female"]
+        ),
+        new OA\Property(
+            property: "address",
+            description: "Patient Address",
+            type: "string",
+        ),
+        new OA\Property(
+            property: "current_job",
+            description: "Patient Job",
+            type: "string",
         ),
         new OA\Property(
             property: "blood_type",
@@ -77,6 +93,9 @@ class RegisterPersonalRequest extends FormRequest
     public function rules()
     {
         return [
+            'national_id'         => ['required','min:9',Rule::unique('patients','national_id')],
+            'current_job'         => ['required','string'],
+            'address'             => ['nullable','string'],
             'birth_date'          => ['required', 'date','before:today'],
             'gender'              => ['required', Rule::in(["male","female"])],
             'blood_type'          => ['required', Rule::in(["A+","A-","B+","B-","AB+","AB-","O+","O-"])],

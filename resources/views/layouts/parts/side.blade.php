@@ -1,14 +1,18 @@
 <!--begin::Aside-->
-<div id="kt_aside" class="aside aside-hoverable" data-kt-drawer="true" data-kt-drawer-name="aside"
+<div id="kt_aside" class="aside  aside-hoverable" data-kt-drawer="true" data-kt-drawer-name="aside"
      data-kt-drawer-activate="{default: true, lg: false}" data-kt-drawer-overlay="true"
      data-kt-drawer-width="{default:'200px', '300px': '250px'}" data-kt-drawer-direction="start"
-     data-kt-drawer-toggle="#kt_aside_mobile_toggle" >
+     data-kt-drawer-toggle="#kt_aside_mobile_toggle" style="background:#2c7a7b;" >
     <!--begin::Brand-->
-    <div class="aside-logo flex-column-auto  mt-2" id="kt_aside_logo">
+    <div class="aside-logo flex-column-auto  mt-4" id="kt_aside_logo">
         <!--begin::Logo-->
-        <a href="{{route('admin.dashboard')}}">
-            <img alt="Logo" src="{{asset('assets/media/logos/logo.png')}}" class="h-50px logo"/>
-        </a>
+
+        <div class="row m-auto ">
+            <a href="{{route('admin.dashboard')}}" class=" d-block">
+                <img alt="Logo" src="{{url('assets/media/logos/logo-white.png')}}" class="h-100px  logo" />
+            </a>
+        </div>
+
         <!--end::Logo-->
         <!--begin::Aside toggler-->
         <div id="kt_aside_toggle" class="btn btn-icon w-auto px-0 btn-active-color-primary aside-toggle"
@@ -37,7 +41,7 @@
     </div>
     <!--end::Brand-->
     <!--begin::Aside menu-->
-    <div class="aside-menu flex-column-fluid">
+    <div class="aside-menu flex-column-fluid mt-5">
         <!--begin::Aside Menu-->
         <div class="hover-scroll-overlay-y my-5 my-lg-5" id="kt_aside_menu_wrapper" data-kt-scroll="true"
              data-kt-scroll-activate="{default: false, lg: true}" data-kt-scroll-height="auto"
@@ -55,21 +59,39 @@
                 </x-sidebar.item>
                 <x-sidebar.separator/>
 
-                <x-sidebar.list href="#" :name="lang('dashboard.side.Management')" :permission="['admins.view']" :active="in_array($activeLink,['admins','roles'])">
+{{--                <x-sidebar.list href="#" :name="lang('dashboard.side.Management')" :permission="['admins.view']" :active="in_array($activeLink,['admins','roles'])">--}}
+{{--                    <x-slot name="svg">--}}
+{{--                        <x-lineawesome-sliders-h-solid/>--}}
+{{--                    </x-slot>--}}
+{{--                    <x-slot name="items">--}}
+{{--                        <x-sidebar.list-item  permission="admins.view" :href="route('system.admins.index')" :name="lang('dashboard.side.admins')" :active="$activeLink=='admins'"/>--}}
+{{--                        <x-sidebar.list-item  permission="admins.view" :href="route('system.roles.index')" :name="lang('dashboard.side.roles')" :active="$activeLink=='roles'"/>--}}
+
+{{--                    </x-slot>--}}
+{{--                </x-sidebar.list>--}}
+
+
+                <x-sidebar.section name="مستخدمين النظام"/>
+
+                <x-sidebar.item :href="route('system.centers.index')" permission="dialysis_centers.view" :name="lng('dashboard.side.center','مراكز الغسيل ')"  :active="$activeLink=='centers'">
                     <x-slot name="svg">
-                        <x-lineawesome-sliders-h-solid/>
+                        <x-lineawesome-user-alt-solid/>
                     </x-slot>
-                    <x-slot name="items">
-                        <x-sidebar.list-item  permission="admins.view" :href="route('system.admins.index')" :name="lang('dashboard.side.admins')" :active="$activeLink=='admins'"/>
-                        <x-sidebar.list-item  permission="admins.view" :href="route('system.roles.index')" :name="lang('dashboard.side.roles')" :active="$activeLink=='roles'"/>
+                </x-sidebar.item>
 
+                <x-sidebar.item :href="route('system.doctors.index')" permission="doctors.view" :name="lng('dashboard.side.doctors','الأطباء')"  :active="$activeLink=='doctors'">
+                    <x-slot name="svg">
+                        <x-lineawesome-user-alt-solid/>
                     </x-slot>
-                </x-sidebar.list>
+                </x-sidebar.item>
 
+                <x-sidebar.item :href="route('system.patients.index')" permission="patients.view" :name="lng('dashboard.side.patients','المرضى')"  :active="$activeLink=='patients'">
+                    <x-slot name="svg">
+                        <x-lineawesome-user-alt-solid/>
+                    </x-slot>
+                </x-sidebar.item>
 
-                <x-sidebar.section name=""/>
-
-                <x-sidebar.item :href="route('system.users.index')" permission="users.view" :name="lang('dashboard.side.users')"  :active="$activeLink=='users'">
+                <x-sidebar.item :href="route('system.users.index')" permission="users.view" :name="lng('dashboard.side.family_member','أفراد عائلة المريض')"  :active="$activeLink=='users'">
                     <x-slot name="svg">
                         <x-lineawesome-user-alt-solid/>
                     </x-slot>
@@ -81,36 +103,72 @@
 {{--                    </x-slot>--}}
 {{--                </x-sidebar.item>--}}
 
+{{--                <x-sidebar.separator/>--}}
+
+{{--                <x-sidebar.list href="#" :name="lang('dashboard.side.app_properties')"--}}
+{{--                                :permission="[--}}
+
+{{--                                'service_categories.view',--}}
+{{--                                'categories.view',--}}
+{{--                                'countries.view',--}}
+{{--                                'cities.view',--}}
+{{--                                  ]"--}}
+{{--                                :active="in_array($activeLink,['categories','Country','areas','cities','districts','payments'])">--}}
+{{--                    <x-slot name="svg">--}}
+{{--                        @svg('lineawesome-border-all-solid')--}}
+{{--                    </x-slot>--}}
+{{--                    <x-slot name="items">--}}
+{{--                        <x-sidebar.list-item  permission="categories.view" :href="route('system.categories.index')" :name="lang('dashboard.side.categories')"  :active="$activeLink=='categories'"/>--}}
+{{--                        <x-sidebar.list-item  permission="cities.view" :href="route('system.areas.index')" :name="lang('dashboard.areas.areas')" :active="$activeLink=='areas'"/>--}}
+{{--                        <x-sidebar.list-item  permission="cities.view" :href="route('system.cities.index')" :name="lang('dashboard.cities.cities')" :active="$activeLink=='cities'"/>--}}
+{{--                        <x-sidebar.list-item  permission="cities.view" :href="route('system.districts.index')" :name="lang('dashboard.districts.districts')" :active="$activeLink=='districts'"/>--}}
+{{--                        <x-sidebar.list-item  permission="payment_types.view" :href="route('system.payments.index')" :name="lng('dashboard.payments.payments','بوابات الدفع')" :active="$activeLink=='payments'"/>--}}
+
+{{--                    </x-slot>--}}
+{{--                </x-sidebar.list>--}}
+
                 <x-sidebar.separator/>
-
-                <x-sidebar.list href="#" :name="lang('dashboard.side.app_properties')"
-                                :permission="[
-
-                                'service_categories.view',
-                                'categories.view',
-                                'countries.view',
-                                'cities.view',
-                                  ]"
-                                :active="in_array($activeLink,['categories','Country','areas','cities','districts','payments'])">
+                <x-sidebar.section name="خصائص النظام"/>
+                <x-sidebar.list href="#" :name="lng('dashboard.side.medications','الأدوية')" :permission="['medications.view']" :active="in_array($activeLink,['medications','general_data'])">--}}
                     <x-slot name="svg">
-                        @svg('lineawesome-border-all-solid')
+                        <x-lineawesome-briefcase-medical-solid/>
                     </x-slot>
                     <x-slot name="items">
-                        <x-sidebar.list-item  permission="categories.view" :href="route('system.categories.index')" :name="lang('dashboard.side.categories')"  :active="$activeLink=='categories'"/>
-                        <x-sidebar.list-item  permission="cities.view" :href="route('system.areas.index')" :name="lang('dashboard.areas.areas')" :active="$activeLink=='areas'"/>
-                        <x-sidebar.list-item  permission="cities.view" :href="route('system.cities.index')" :name="lang('dashboard.cities.cities')" :active="$activeLink=='cities'"/>
-                        <x-sidebar.list-item  permission="cities.view" :href="route('system.districts.index')" :name="lang('dashboard.districts.districts')" :active="$activeLink=='districts'"/>
-                        <x-sidebar.list-item  permission="payment_types.view" :href="route('system.payments.index')" :name="lng('dashboard.payments.payments','بوابات الدفع')" :active="$activeLink=='payments'"/>
+                        <x-sidebar.list-item  permission="general_data.view" :href="route('system.general.index','drug_categories')" :name="lng('dashboard.side.drug_categories','أقسام الأدوية')" :active="$activeLink=='general'"/><x-sidebar.list-item  permission="admins.view" :href="route('system.roles.index')" :name="lang('dashboard.side.roles')" :active="$activeLink=='roles'"/>
+                    </x-slot>
+                 </x-sidebar.list>
 
+                <x-sidebar.list href="#" :name="lng('dashboard.side.dialysis_centers','جلسات الغسيل')" :permission="['dialysis_centers.view']" :active="in_array($activeLink,['dialysis_centers'])">
+                    <x-slot name="svg">
+                        <x-lineawesome-briefcase-medical-solid/>
+                    </x-slot>
+                    <x-slot name="items">
+                        <x-sidebar.list-item  permission="general_data.view" :href="route('system.general.index','drug_categories')" :name="lng('dashboard.side.drug_categories','أقسام الأدوية')" :active="$activeLink=='general_data'"/>
+{{--                        <x-sidebar.list-item  permission="admins.view" :href="route('system.roles.index')" :name="lang('dashboard.side.roles')" :active="$activeLink=='roles'"/>--}}
+                    </x-slot>
+                </x-sidebar.list>
+
+                <x-sidebar.list href="#" :name="lng('dashboard.side.fluid_logs','تتبع السوائل')" :permission="['fluid_logs.view']" :active="in_array($activeLink,['dialysis_centers'])">
+                    <x-slot name="svg">
+                        <x-lineawesome-briefcase-medical-solid/>
+                    </x-slot>
+                    <x-slot name="items">
+{{--                        <x-sidebar.list-item  permission="general_data.view" :href="route('system.general_data.index')" :name="lng('dashboard.side.drug_categories','أقسام الأدوية')" :active="$activeLink=='general_data'"/><x-sidebar.list-item  permission="admins.view" :href="route('system.roles.index')" :name="lang('dashboard.side.roles')" :active="$activeLink=='roles'"/>--}}
                     </x-slot>
                 </x-sidebar.list>
 
                 <x-sidebar.separator/>
 
-                <x-sidebar.section :name="lang('dashboard.side.app_management')" />
+                    <x-sidebar.section :name="lang('dashboard.side.app_management')" />
                 <x-sidebar.item :href="route('system.settings.index')" permission="settings.view" :name="lang('dashboard.side.settings')"  :active="$activeLink=='settings'">
                     <x-slot name="svg">
                         @svg('lineawesome-cog-solid')
+                    </x-slot>
+                </x-sidebar.item>
+
+                <x-sidebar.item :href="route('system.faq.index')" permission="faqs.view"  :name="lng('dashboard.side.faqs','الأسئلة الشائعة')" :active="$activeLink=='faqs'">
+                    <x-slot name="svg">
+                        @svg('lineawesome-code-solid')
                     </x-slot>
                 </x-sidebar.item>
 
@@ -120,11 +178,11 @@
                     </x-slot>
                 </x-sidebar.item>
 
-                <x-sidebar.item :href="route('system.contacts.index')" permission="contactus.view" :name="lang('dashboard.side.contactus')" :active="$activeLink=='contacts'">
-                    <x-slot name="svg">
-                        @svg('lineawesome-comment-dots')
-                    </x-slot>
-                </x-sidebar.item>
+{{--                <x-sidebar.item :href="route('system.contacts.index')" permission="contactus.view" :name="lang('dashboard.side.contactus')" :active="$activeLink=='contacts'">--}}
+{{--                    <x-slot name="svg">--}}
+{{--                        @svg('lineawesome-comment-dots')--}}
+{{--                    </x-slot>--}}
+{{--                </x-sidebar.item>--}}
                 <x-sidebar.item :href="route('system.sms.index')" permission="sms.view" :name="lang('dashboard.side.sms')" :active="$activeLink=='sms'">
                     <x-slot name="svg">
                         @svg('lineawesome-comment')

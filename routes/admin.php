@@ -3,11 +3,16 @@
 use App\Http\Controllers\Admin\AdminsController;
 use App\Http\Controllers\Admin\AreaController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CenterController;
 use App\Http\Controllers\Admin\CityController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\DistrictController;
+use App\Http\Controllers\Admin\DoctorController;
+use App\Http\Controllers\Admin\FAQController;
 use App\Http\Controllers\Admin\GeneralController;
+use App\Http\Controllers\Admin\GeneralDataController;
 use App\Http\Controllers\Admin\GLobalNotificationController;
+use App\Http\Controllers\Admin\PatientController;
 use \App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SettingsController;
@@ -46,10 +51,11 @@ Route::middleware(['auth:admin'])->group(callback: function () {
 
 
 
-        /**************************************** Start admins Route ****************************************/
-
+//=====================================================================================================
+//                   Admin ROUTRS
+//=====================================================================================================
         Route::prefix('admins/')->middleware('permission:admins.view,admin')->group(function () {
-            Route::get('', [AdminsController::class, 'index'])->name('system.admins.index');
+            Route::get('',    [AdminsController::class, 'index'])->name('system.admins.index');
             Route::get('create', [AdminsController::class, 'showCreateView'])->middleware('permission:admins.create,admin')->name('system.admins.create');
             Route::post('create', [AdminsController::class, 'store'])->middleware('permission:admins.create,admin')->name('system.admins.store');
             Route::get('update/{id}', [AdminsController::class, 'showUpdateView'])->middleware('permission:admins.edit,admin')->name('system.admins.update');
@@ -59,7 +65,6 @@ Route::middleware(['auth:admin'])->group(callback: function () {
             Route::post('delete', [AdminsController::class, 'delete'])->middleware('permission:admins.delete,admin')->name('system.admins.delete');
             Route::post('update-fcm-token', [AdminsController::class, 'saveFcmToken'])->name('system.admins.update.fcm.token');
         });
-
         Route::prefix('profile')->group(function () {
             Route::get('', [AdminsController::class, 'showProfileView'])->name('system.admins.profile');
             Route::post('do_update', [AdminsController::class, 'profile'])->name('system.admins.do.profile');
@@ -70,13 +75,11 @@ Route::middleware(['auth:admin'])->group(callback: function () {
             Route::get('get_notifications', [AdminsController::class, 'get_notifications'])->name('system.admins.get_notifications');
 
         });
-        /**************************************** End Admin Route ****************************************/
 
 
 //=====================================================================================================
 //                   ROLE ROUTRS
 //=====================================================================================================
-
         Route::prefix('roles/')->middleware('permission:admins.edit,admin')->group(function () {
             Route::get('', [RoleController::class, 'index'])->name('system.roles.index');
             Route::get('create', [RoleController::class, 'showCreateView'])->name('system.roles.create');
@@ -90,18 +93,15 @@ Route::middleware(['auth:admin'])->group(callback: function () {
 //=====================================================================================================
 //                   settings ROUTRS
 //=====================================================================================================
-
         Route::prefix('settings/')->middleware('permission:settings.edit,admin')->group(function () {
             Route::get('', [SettingsController::class, 'index'])->name('system.settings.index');
             Route::post('save', [SettingsController::class, 'save'])->name('system.settings.save');
-
         });
 
 
 //=====================================================================================================
 //                   users ROUTRS
 //=====================================================================================================
-
         Route::prefix('users/')->middleware('permission:users.view,admin')->group(function () {
             Route::get('', [UserController::class, 'index'])->name('system.users.index');
             Route::get('/details/{id}', [UserController::class, 'details'])->name('system.users.details');
@@ -110,28 +110,85 @@ Route::middleware(['auth:admin'])->group(callback: function () {
             Route::post('/activate', [UserController::class, 'activate'])->name('system.users.activate');
             Route::get('/send-msg/{id}', [UserController::class, 'sendMsgView'])->name('system.users.sendMsgView');
             Route::post('/send-msg/{id}', [UserController::class, 'sendMsg'])->name('system.users.sendMsg');
-
         });
 
 
-        //=====================================================================================================
-        //                   General ROUTRS
-        //=====================================================================================================
 
-        Route::prefix('general/{module}')->group(function () {
-            Route::get('', [GeneralController::class, 'index'])->name('system.general.index');
-            Route::get('create', [GeneralController::class, 'show_create'])->name('system.general.create');
-            Route::post('create', [GeneralController::class, 'create']);
-            Route::get('update/{id}', [GeneralController::class, 'show_update'])->name('system.general.update');
-            Route::post('update/{id}', [GeneralController::class, 'update']);
-            Route::post('change_status', [GeneralController::class, 'change_status'])->name('system.general.change_status');
-            Route::post('delete', [GeneralController::class, 'delete'])->name('system.general.delete');
-            Route::post('activate', [GeneralController::class, 'activate'])->name('system.general.activate');
-            Route::post('deactivate', [GeneralController::class, 'deactivate'])->name('system.general.deactivate');
+//=====================================================================================================
+//                   Dialysis Centers ROUTRS
+//=====================================================================================================
 
-        });
+    Route::prefix('centers/')->middleware('permission:dialysis_centers.view,admin')->group(function () {
+        Route::get('',                 [CenterController::class, 'index'])->name('system.centers.index');
+        Route::get('/details/{id}',    [CenterController::class, 'details'])->name('system.centers.details');
+//        Route::post('delete',          [CenterController::class, 'delete'])->middleware('permission:dialysis_centers.delete,admin')->name('system.centers.delete');
+        Route::post('/notActivate',    [CenterController::class, 'deactivate'])->name('system.centers.deactivate');
+        Route::post('/activate',       [CenterController::class, 'activate'])->name('system.centers.activate');
+        Route::post('/closed',         [CenterController::class, 'temporarilyClosed'])->name('system.centers.temporarily_closed');
+        Route::get('create',           [CenterController::class, 'showCreateView'])->middleware('permission:dialysis_centers.create,admin')->name('system.centers.create');
+        Route::post('create',          [CenterController::class, 'store'])->middleware('permission:dialysis_centers.create,admin')->name('system.centers.store');
+        Route::get('update/{id}',      [CenterController::class, 'showUpdateView'])->middleware('permission:dialysis_centers.edit,admin')->name('system.centers.update');
+        Route::post('update/{id}',     [CenterController::class, 'update'])->middleware('permission:dialysis_centers.edit,admin')->name('system.centers.updateAdmin');
 
-        //=====================================================================================================
+    });
+
+
+
+//=====================================================================================================
+//                   Doctors ROUTRS
+//=====================================================================================================
+    Route::prefix('doctors/')->middleware('permission:doctors.view,admin')->group(function () {
+        Route::get('',    [DoctorController::class, 'index'])->name('system.doctors.index');
+        Route::get('create', [DoctorController::class, 'showCreateView'])->middleware('permission:doctors.create,admin')->name('system.doctors.create');
+        Route::post('create', [DoctorController::class, 'store'])->middleware('permission:doctors.create,admin')->name('system.doctors.store');
+        Route::get('update/{id}', [DoctorController::class, 'showUpdateView'])->middleware('permission:doctors.edit,admin')->name('system.doctors.update');
+        Route::post('update/{id}', [DoctorController::class, 'update'])->middleware('permission:doctors.edit,admin')->name('system.doctors.updateAdmin');
+        Route::get('password/{id}', [DoctorController::class, 'showPasswordView'])->middleware('permission:doctors.edit,admin')->name('system.doctors.password');
+        Route::post('password/{id}', [DoctorController::class, 'password'])->middleware('permission:doctors.edit,admin')->name('system.doctors.updatePassword');
+        Route::post('delete', [DoctorController::class, 'delete'])->middleware('permission:doctors.delete,admin')->name('system.doctors.delete');
+        Route::post('/notActivate',    [DoctorController::class, 'deactivate'])->name('system.doctors.deactivate');
+        Route::post('/activate',       [DoctorController::class, 'activate'])->name('system.doctors.activate');
+
+    });
+
+//=====================================================================================================
+//                   Patients ROUTRS
+//=====================================================================================================
+    Route::prefix('patients/')->middleware('permission:patients.view,admin')->group(function () {
+        Route::get('',                 [PatientController::class, 'index'])->name('system.patients.index');
+        Route::get('create',           [PatientController::class, 'showCreateView'])->middleware('permission:patients.create,admin')->name('system.patients.create');
+        Route::post('create',          [PatientController::class, 'store'])->middleware('permission:patients.create,admin')->name('system.patients.store');
+        Route::get('update/{id}',      [PatientController::class, 'showUpdateView'])->middleware('permission:patients.edit,admin')->name('system.patients.update');
+        Route::post('update/{id}',     [PatientController::class, 'update'])->middleware('permission:patients.edit,admin')->name('system.patients.updateAdmin');
+        Route::get('password/{id}',    [PatientController::class, 'showPasswordView'])->middleware('permission:patients.edit,admin')->name('system.patients.password');
+        Route::post('password/{id}',   [PatientController::class, 'password'])->middleware('permission:patients.edit,admin')->name('system.patients.updatePassword');
+        Route::post('delete',          [PatientController::class, 'delete'])->middleware('permission:patients.delete,admin')->name('system.patients.delete');
+        Route::post('/notActivate',    [PatientController::class, 'deactivate'])->name('system.patients.deactivate');
+        Route::post('/activate',       [PatientController::class, 'activate'])->name('system.patients.activate');
+
+    });
+
+
+    //=====================================================================================================
+    //                   General ROUTRS
+    //=====================================================================================================
+
+    Route::prefix('general_data/{item}')->group(function () {
+        Route::get('',                 [GeneralDataController::class, 'index'])->name('system.general.index');
+        Route::get('create',           [GeneralDataController::class, 'show_create'])->name('system.general.create');
+        Route::post('create',          [GeneralDataController::class, 'create']);
+        Route::get('update/{id}',      [GeneralDataController::class, 'show_update'])->name('system.general.update');
+        Route::post('update/{id}',     [GeneralDataController::class, 'update']);
+        Route::post('change_status',   [GeneralDataController::class, 'change_status'])->name('system.general.change_status');
+        Route::post('delete',          [GeneralDataController::class, 'delete'])->name('system.general.delete');
+        Route::post('activate',        [GeneralDataController::class,'activate'])->name('system.general.activate');
+        Route::post('deactivate',      [GeneralDataController::class,'deactivate'])->name('system.general.deactivate');
+
+    });
+
+
+
+    //=====================================================================================================
         //                   global_notifications ROUTRS
         //=====================================================================================================
 
@@ -143,8 +200,24 @@ Route::middleware(['auth:admin'])->group(callback: function () {
         });
 
 
+    //=====================================================================================================
+    //                   faqs ROUTRS
+    //=====================================================================================================
 
-        /**************************************** start pages Routes ***************************************/
+    Route::prefix('faq')->middleware('permission:faqs.view,admin')->group(function () {
+        Route::get('/',              [FAQController::class, 'index'])->middleware('permission:faqs.view,admin')->name('system.faq.index');
+        Route::get('/create',        [FAQController::class, 'create'])->name('system.faq.create');
+        Route::post('store',         [FAQController::class, 'store'])->middleware('permission:faqs.create,admin')->name('system.faq.store');
+        Route::get('update/{id}',    [FAQController::class, 'showUpdateView'])->middleware('permission:faqs.edit,admin')->name('system.faq.update');
+        Route::post('update/{id}',   [FAQController::class, 'update'])->middleware('permission:faqs.edit,admin');
+        Route::post('delete',        [FAQController::class, 'delete'])->middleware('permission:faqs.delete,admin')->name('system.faq.delete');
+    });
+
+
+
+
+
+    /**************************************** start pages Routes ***************************************/
         Route::prefix('pages/')->middleware('permission:pages.view,admin')->group(function () {
             Route::get('', [PageController::class, 'index'])->name('system.pages.index');
             Route::get('update/{id}', [PageController::class, 'showUpdateView'])->middleware('permission:pages.edit,admin')->name('system.pages.update');
@@ -165,21 +238,6 @@ Route::middleware(['auth:admin'])->group(callback: function () {
         /**************************************** end contacts model Routes ***************************************/
 
 
-        /**************************************** start services Routes ***************************************/
-        Route::prefix('services/')->middleware('permission:services.view,admin')->group(function () {
-            Route::get('', [ServiceController::class, 'index'])->name('system.services.index');
-            Route::get('create', [ServiceController::class, 'create'])->name('system.services.create');
-            Route::post('create', [ServiceController::class, 'store']);
-            Route::get('update/{service}', [ServiceController::class, 'edit'])->name('system.services.update');
-            Route::get('show/{service}', [ServiceController::class, 'show'])->name('system.services.show');
-            Route::post('update/{service}', [ServiceController::class, 'update']);
-            Route::post('delete', [ServiceController::class, 'delete'])->middleware('permission:services.delete,admin')->name('system.services.delete');
-            Route::post('activate', [ServiceController::class, 'activate'])->name('system.services.activate');
-            Route::post('deactivate', [ServiceController::class, 'deactivate'])->name('system.services.deactivate');
-
-
-        });
-        /**************************************** end services Routes ***************************************/
 
 
         /**************************************** Start Categories Route ****************************************/
@@ -194,55 +252,6 @@ Route::middleware(['auth:admin'])->group(callback: function () {
             Route::post('/activate', [CategoryController::class, 'activate'])->name('system.categories.activate');
         });
         /**************************************** End Categories Route *********************************************/
-
-    /**************************************** Start areas Route ****************************************/
-    Route::prefix('areas/')->middleware('permission:cities.view,admin')->group(function () {
-        Route::get('',               [AreaController::class, 'index'])->name('system.areas.index');
-        Route::get('/create',        [AreaController::class, 'create'])->name('system.areas.create');
-        Route::get('/show-cities/{id}',[AreaController::class, 'show_cities'])->name('system.areas.show_cities');
-        Route::get('/cities/{id}',   [AreaController::class, 'cities'])->name('system.areas.cities');
-        Route::post('store',         [AreaController::class, 'store'])->middleware('permission:cities.create,admin')->name('system.areas.store');
-        Route::get('update/{id}',    [AreaController::class, 'showUpdateView'])->middleware('permission:cities.edit,admin')->name('system.areas.update');
-        Route::post('update/{id}',   [AreaController::class, 'update'])->middleware('permission:cities.edit,admin');
-        Route::post('delete',        [AreaController::class, 'delete'])->middleware('permission:cities.delete,admin')->name('system.areas.delete');
-        Route::post('/notActivate',  [AreaController::class, 'deactivate'])->name('system.areas.deactivate');
-        Route::post('/activate',     [AreaController::class, 'activate'])->name('system.areas.activate');
-    });
-    /**************************************** End areas Route *********************************************/
-
-
-    /**************************************** Start areas Route ****************************************/
-    Route::prefix('cities/')->middleware('permission:cities.view,admin')->group(function () {
-        Route::get('',               [CityController::class, 'index'])->name('system.cities.index');
-        Route::get('/create',        [CityController::class, 'create'])->name('system.cities.create');
-        Route::post('store',         [CityController::class, 'store'])->middleware('permission:cities.create,admin')->name('system.cities.store');
-        Route::get('update/{id}',    [CityController::class, 'showUpdateView'])->middleware('permission:cities.edit,admin')->name('system.cities.update');
-        Route::post('update/{id}',   [CityController::class, 'update'])->middleware('permission:cities.edit,admin');
-        Route::get('/districts/{id}',[CityController::class, 'districts'])->name('system.cities.districts');
-
-    });
-    /**************************************** End areas Route *********************************************/
-
-    /**************************************** Start areas Route ****************************************/
-    Route::prefix('districts/')->middleware('permission:cities.view,admin')->group(function () {
-        Route::get('',               [DistrictController::class, 'index'])->name('system.districts.index');
-        Route::get('/create',        [DistrictController::class, 'create'])->name('system.districts.create');
-        Route::post('store',         [DistrictController::class, 'store'])->middleware('permission:cities.create,admin')->name('system.districts.store');
-        Route::get('update/{id}',    [DistrictController::class, 'showUpdateView'])->middleware('permission:cities.edit,admin')->name('system.districts.update');
-        Route::post('update/{id}',   [DistrictController::class, 'update'])->middleware('permission:cities.edit,admin');
-    });
-    /**************************************** End areas Route *********************************************/
-
-    /**************************************** Start payments Route ****************************************/
-    Route::prefix('payments/')->middleware('permission:payment_types.view,admin')->group(function () {
-        Route::get('',               [PaymentController::class, 'index'])->name('system.payments.index');
-        Route::get('update/{id}',    [PaymentController::class, 'showUpdateView'])->middleware('permission:payment_types.edit,admin')->name('system.payments.update');
-        Route::post('update/{id}',   [PaymentController::class, 'update'])->middleware('permission:payment_types.edit,admin');
-        Route::post('/notActivate',  [PaymentController::class, 'deactivate'])->name('system.payments.deactivate');
-        Route::post('/activate',     [PaymentController::class, 'activate'])->name('system.payments.activate');
-
-    });
-    /**************************************** End areas Route *********************************************/
 
 
 

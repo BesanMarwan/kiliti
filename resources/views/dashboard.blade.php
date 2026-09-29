@@ -1,4 +1,4 @@
-@extends('layouts.admin.blade.php')
+@extends('layouts.doctor.blade.php')
 
 @section('content')
     <h1>Content</h1>

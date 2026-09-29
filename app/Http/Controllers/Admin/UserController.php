@@ -41,7 +41,7 @@ class UserController extends Controller
         }else{
             $ids[]=$request->id;
         }
-        
+
         SMS::whereIn('user_id',$ids)->delete();
 
         User::destroy($ids);
@@ -79,36 +79,36 @@ class UserController extends Controller
 
         return ['done' => 1];
     }
-    
-    
+
+
     public function sendMsgView($id){
-        
+
         $user =User::findOrFail($id);
         return view('admin.users.send_msg',compact('user'));
-        
+
     }
-    
+
     public function sendMsg(Request $request,$id){
-        
-    
-            
+
+
+
         $user =User::findOrFail($id);
-        
+
         $sms = new SMS();
         $sms->message = $request->message;
         $sms->admin_id = Auth::guard('admin')->user()->id;
         $sms->type     = 'user';
         $sms->user_id  = $user->id;
         $sms->save();
-        
-        SendSMS::dispatch($user->mobile,$request->message,1);
-        
 
-        
+        SendSMS::dispatch($user->mobile,$request->message,1);
+
+
+
 
         return ['done'=>true];
 
-            
+
     }
 
 }

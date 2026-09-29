@@ -71,13 +71,147 @@
                 }
             }
         },
+        "/api/v1/app/rate": {
+            "post": {
+                "tags": [
+                    "GeneralApiSection"
+                ],
+                "summary": "User Rate Application API",
+                "description": "User Rate Application  returns rate object",
+                "operationId": "rateApplication",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_key"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_name"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device_type"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ApplicationRate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RateResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/api/v1/app/family-relationships": {
+            "get": {
+                "tags": [
+                    "GeneralApiSection"
+                ],
+                "summary": "Get family relationships",
+                "description": "Returns the available family relationship types.",
+                "operationId": "getFamilyRelationships",
+                "responses": {
+                    "200": {
+                        "description": "Family relationships retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Family relationships retrieved successfully."
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "value": {
+                                                        "type": "string",
+                                                        "example": "mother"
+                                                    },
+                                                    "label_ar": {
+                                                        "type": "string",
+                                                        "example": "الأم"
+                                                    },
+                                                    "label_en": {
+                                                        "type": "string",
+                                                        "example": "Mother"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/app/get_gen_items/{item_type}": {
+            "get": {
+                "tags": [
+                    "GeneralApiSection"
+                ],
+                "summary": "Get general items API",
+                "description": "Get general items service the item_type can be one of:dialysis_session_issue,consultation_type",
+                "operationId": "get_gen_items",
+                "parameters": [
+                    {
+                        "name": "item_type",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "consultation_type"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "General Items Objects retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/GeneralDataResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/app/page/{page_id}": {
             "get": {
                 "tags": [
                     "PagesApiSection"
                 ],
                 "summary": "Get Static Pages API",
-                "description": "Get Pages service : Conditions id = 1 or Privacy Policy id = 2 or Feed back id = 3",
+                "description": "Get Pages service : Conditions id = 1 or About us id =2",
                 "operationId": "pages",
                 "parameters": [
                     {
@@ -99,10 +233,48 @@
                     }
                 }
             }
+        },
+        "/api/v1/app/faqs": {
+            "get": {
+                "tags": [
+                    "PagesApiSection"
+                ],
+                "summary": "Get faqs  API",
+                "description": "Get faqs ",
+                "operationId": "faqs",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation with status = true"
+                    }
+                }
+            }
         }
     },
     "components": {
         "schemas": {
+            "ApplicationRate": {
+                "title": "ApplicationRate",
+                "required": [
+                    "rate",
+                    "comment"
+                ],
+                "properties": {
+                    "rate": {
+                        "description": "rate number 1,2,3,4,5",
+                        "type": "number"
+                    },
+                    "comment": {
+                        "description": "any comment about application",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
             "GeneralDataResource": {
                 "title": "GeneralDataResource",
                 "properties": {
@@ -121,6 +293,32 @@
                     }
                 },
                 "type": "object"
+            },
+            "RateResource": {
+                "title": "Rate Response",
+                "properties": {
+                    "id": {
+                        "description": "user id",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "rate": {
+                        "description": "rate number",
+                        "type": "number"
+                    },
+                    "comment": {
+                        "description": "comment about application",
+                        "type": "string"
+                    }
+                },
+                "type": "object",
+                "example": {
+                    "rateObj": {
+                        "id": "1",
+                        "rate": 4,
+                        "comment": "comment about application"
+                    }
+                }
             }
         },
         "parameters": {
