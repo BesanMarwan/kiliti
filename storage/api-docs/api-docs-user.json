@@ -72,7 +72,7 @@
                                 "properties": {
                                     "mobile": {
                                         "description": "mobile",
-                                        "type": "number"
+                                        "type": "string"
                                     }
                                 },
                                 "type": "object"
@@ -191,7 +191,7 @@
                         "description": "successful operation with status = true and user object"
                     },
                     "422": {
-                        "description": "status = true : User not activated || status = false : User not found or password is not correct"
+                        "description": "Validation error. The provided registration data is invalid."
                     }
                 }
             }
@@ -202,7 +202,7 @@
                     "AuthanticationApiSection"
                 ],
                 "summary": "Complete User  register personal API ",
-                "description": "Complete User register personal returns user object",
+                "description": "Completes the patient's personal, medical, dialysis center, and doctor information.",
                 "operationId": "complete_register",
                 "parameters": [
                     {
@@ -232,9 +232,14 @@
                         "description": "successful operation with status = true and user object"
                     },
                     "422": {
-                        "description": "status = true : User not activated || status = false : User not found or password is not correct"
+                        "description": "Validation error. The provided personal or medical registration data is invalid."
                     }
-                }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
             }
         },
         "/api/v1/user/update_profile": {
@@ -242,8 +247,8 @@
                 "tags": [
                     "AuthanticationApiSection"
                 ],
-                "summary": "User login API",
-                "description": "User login service returns user object",
+                "summary": "Update user profile",
+                "description": "Updates the authenticated user's profile information.",
                 "operationId": "update profile",
                 "parameters": [
                     {
@@ -271,7 +276,7 @@
                         }
                     },
                     "422": {
-                        "description": "Validation error"
+                        "description": "Validation error. The provided profile data is invalid."
                     },
                     "451": {
                         "description": "Not verified : User need confirm mobile",
@@ -405,32 +410,47 @@
                     "DialysisSessionsApiSection"
                 ],
                 "summary": "Get Patient Dialysis Sessions",
-                "description": "Get the authenticated patient's dialysis sessions within a specified date range.",
+                "description": "Get the authenticated patient's dialysis sessions. Use type=upcoming for upcoming sessions or type=past for previous sessions.",
                 "operationId": "getPatientDialysisSessions",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/language"
                     },
                     {
+                        "name": "type",
+                        "in": "query",
+                        "description": "Filter sessions by time.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "upcoming",
+                            "enum": [
+                                "upcoming",
+                                "past"
+                            ]
+                        },
+                        "example": "upcoming"
+                    },
+                    {
                         "name": "from",
                         "in": "query",
-                        "description": "Start date in Y-m-d format. Defaults to today.",
+                        "description": "Start date in Y-m-d format. Optional.",
                         "required": false,
                         "schema": {
                             "type": "string",
                             "format": "date",
-                            "example": "2026-09-26"
+                            "example": "2026-10-01"
                         }
                     },
                     {
                         "name": "to",
                         "in": "query",
-                        "description": "End date in Y-m-d format. Defaults to 30 days from today.",
+                        "description": "End date in Y-m-d format. Optional.",
                         "required": false,
                         "schema": {
                             "type": "string",
                             "format": "date",
-                            "example": "2026-10-10"
+                            "example": "2026-10-31"
                         }
                     }
                 ],
@@ -445,6 +465,11 @@
                                             "type": "boolean",
                                             "example": true
                                         },
+                                        "message": {
+                                            "type": "string",
+                                            "example": null,
+                                            "nullable": true
+                                        },
                                         "data": {
                                             "type": "array",
                                             "items": {
@@ -456,6 +481,9 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthenticated."
                     },
                     "404": {
                         "description": "Patient profile not found."
@@ -479,6 +507,11 @@
                 "summary": "Get next dialysis session",
                 "description": "Returns the next upcoming dialysis session for the authenticated patient.",
                 "operationId": "9cff358a1710eada3f7e7db435e2339d",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Next dialysis session retrieved successfully",
@@ -594,6 +627,9 @@
                             "type": "integer",
                             "example": 15
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/language"
                     }
                 ],
                 "responses": {
@@ -697,7 +733,7 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "api_key": []
                     }
                 ]
             },
@@ -801,7 +837,7 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "api_key": []
                     }
                 ]
             }
@@ -826,7 +862,7 @@
                         }
                     },
                     {
-                        "name": "reported_at_from_to",
+                        "name": "reported_at_to",
                         "in": "query",
                         "description": "End date",
                         "required": false,
@@ -877,7 +913,7 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "api_key": []
                     }
                 ]
             }
@@ -1680,9 +1716,9 @@
                 "tags": [
                     "FluidLogApiSection"
                 ],
-                "summary": "Get user fluid logs API",
-                "description": "Get user  fluid logs today service",
-                "operationId": "GetUserFluidLog",
+                "summary": "Get today's fluid logs",
+                "description": "Returns the authenticated patient's fluid intake entries recorded today, ordered from newest to oldest, with today's fluid consumption summary.",
+                "operationId": "getUserFluidLogs",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/language"
@@ -1690,7 +1726,68 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "successful operation with status = true and notifications array of objects"
+                        "description": "Today's fluid logs retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "fluid_limit": {
+                                            "description": "Daily fluid limit in milliliters.",
+                                            "type": "integer",
+                                            "example": 1500
+                                        },
+                                        "total_amount": {
+                                            "description": "Total fluid consumed today in milliliters.",
+                                            "type": "integer",
+                                            "example": 1050
+                                        },
+                                        "remains": {
+                                            "description": "Remaining fluid allowance today in milliliters.",
+                                            "type": "integer",
+                                            "example": 450
+                                        },
+                                        "percentage": {
+                                            "description": "Percentage of today's fluid limit consumed.",
+                                            "type": "number",
+                                            "format": "float",
+                                            "example": 70
+                                        },
+                                        "is_exceeded": {
+                                            "description": "Whether today's total fluid consumption exceeds the daily limit.",
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "entries_count": {
+                                            "description": "Number of fluid entries recorded today.",
+                                            "type": "integer",
+                                            "example": 3
+                                        },
+                                        "entries_label": {
+                                            "description": "Display label for the number of fluid entries.",
+                                            "type": "string",
+                                            "example": "3 مدخلات"
+                                        },
+                                        "logs": {
+                                            "description": "Today's fluid entries ordered from newest to oldest.",
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/FluidLogResource"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Only patients can access fluid logs"
+                    },
+                    "404": {
+                        "description": "No fluid logs found"
                     }
                 },
                 "security": [
@@ -1705,17 +1802,161 @@
                 "tags": [
                     "FluidLogApiSection"
                 ],
-                "summary": "Get user history fluid logs API",
-                "description": "Get user history  fluid logs service",
-                "operationId": "GetHistoryFluidLog",
+                "summary": "Get fluid logs history",
+                "description": "Get the patient's daily fluid consumption history and adherence summary.",
+                "operationId": "getHistoryFluidLog",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/language"
+                    },
+                    {
+                        "name": "days",
+                        "in": "query",
+                        "description": "Number of previous days to retrieve. Allowed range: 1-30.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 7,
+                            "maximum": 30,
+                            "minimum": 1
+                        },
+                        "example": 7
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "successful operation with status = true and fluid logs array of objects"
+                        "description": "Fluid history retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "logs": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "date": {
+                                                        "type": "string",
+                                                        "format": "date",
+                                                        "example": "2026-10-07"
+                                                    },
+                                                    "day_name": {
+                                                        "type": "string",
+                                                        "example": "الأربعاء"
+                                                    },
+                                                    "total_amount_ml": {
+                                                        "type": "integer",
+                                                        "example": 1600
+                                                    },
+                                                    "fluid_limit_ml": {
+                                                        "type": "integer",
+                                                        "example": 1500
+                                                    },
+                                                    "remaining_ml": {
+                                                        "type": "integer",
+                                                        "example": 0
+                                                    },
+                                                    "exceeded_ml": {
+                                                        "type": "integer",
+                                                        "example": 100
+                                                    },
+                                                    "is_exceeded": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "example": "slightly_exceeded",
+                                                        "enum": [
+                                                            "within_limit",
+                                                            "slightly_exceeded",
+                                                            "significantly_exceeded"
+                                                        ]
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "summary": {
+                                            "properties": {
+                                                "period_days": {
+                                                    "type": "integer",
+                                                    "example": 7
+                                                },
+                                                "logged_days": {
+                                                    "type": "integer",
+                                                    "example": 6
+                                                },
+                                                "days_within_limit": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                },
+                                                "days_exceeded": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "adherence_percentage": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 83.3
+                                                },
+                                                "adherence_label": {
+                                                    "type": "string",
+                                                    "example": "التزام جيد"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "User is not authorized to access fluid history"
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "days": [
+                                                    "The days field must be between 1 and 30."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No fluid logs found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "No fluid logs found."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -1736,20 +1977,12 @@
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/language"
-                    },
-                    {
-                        "$ref": "#/components/parameters/device_key"
-                    },
-                    {
-                        "$ref": "#/components/parameters/device_name"
-                    },
-                    {
-                        "$ref": "#/components/parameters/device_type"
                     }
                 ],
                 "requestBody": {
+                    "required": true,
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "$ref": "#/components/schemas/FluidLog"
                             }
@@ -1758,29 +1991,56 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Fluid log created successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/UserResource"
+                                    "properties": {
+                                        "log": {
+                                            "$ref": "#/components/schemas/FluidLogResource"
+                                        }
+                                    },
+                                    "type": "object"
                                 }
                             }
                         }
                     },
                     "422": {
-                        "description": "Validation error"
-                    },
-                    "451": {
-                        "description": "Not verified : User need confirm mobile",
+                        "description": "Validation error",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/UserResource"
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "amount_ml": [
+                                                    "كمية السائل يجب أن تكون من مضاعفات 50 مل."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "User is not allowed to add fluid logs"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
             }
         },
         "/api/v1/user/fluid-logs/summary": {
@@ -1791,6 +2051,11 @@
                 "summary": "Get today's fluid intake summary for dashboard",
                 "description": "Returns the authenticated patient's fluid intake summary for the current day.",
                 "operationId": "439e7a6166155be881b2088e67acba57",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/language"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Fluid summary retrieved successfully",
@@ -1817,10 +2082,199 @@
                         }
                     },
                     "401": {
-                        "description": "Unauthenticated"
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "status": false,
+                                    "message": "Unauthenticated."
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "status": false,
+                                    "message": "You are not authorized to access this resource."
+                                }
+                            }
+                        }
                     },
                     "404": {
                         "description": "Patient profile not found"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/food-assistant/search": {
+            "get": {
+                "tags": [
+                    "Food Assistant"
+                ],
+                "summary": "Search food information",
+                "description": "Search for a food using a food name or natural language query. The system identifies the food, retrieves verified nutrition data from the food database, calculates nutrient levels, and returns general guidance and alternatives.",
+                "operationId": "0d13223356131612c820aa57c4dae944",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Food name or natural language query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 500,
+                            "minLength": 2
+                        },
+                        "example": "موز"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Food information retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "query": {
+                                            "type": "string",
+                                            "example": "موز"
+                                        },
+                                        "food": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "موز"
+                                                },
+                                                "name_en": {
+                                                    "type": "string",
+                                                    "example": "banana"
+                                                },
+                                                "serving": {
+                                                    "properties": {
+                                                        "amount": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 118
+                                                        },
+                                                        "unit": {
+                                                            "type": "string",
+                                                            "example": "g"
+                                                        },
+                                                        "description": {
+                                                            "type": "string",
+                                                            "example": "حبة متوسطة"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object",
+                                            "nullable": true
+                                        },
+                                        "nutrients": {
+                                            "properties": {
+                                                "potassium": {
+                                                    "properties": {
+                                                        "value": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 422
+                                                        },
+                                                        "unit": {
+                                                            "type": "string",
+                                                            "example": "mg"
+                                                        },
+                                                        "level": {
+                                                            "type": "string",
+                                                            "example": "high"
+                                                        }
+                                                    },
+                                                    "type": "object",
+                                                    "nullable": true
+                                                },
+                                                "phosphorus": {
+                                                    "properties": {
+                                                        "value": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 26
+                                                        },
+                                                        "unit": {
+                                                            "type": "string",
+                                                            "example": "mg"
+                                                        },
+                                                        "level": {
+                                                            "type": "string",
+                                                            "example": "low"
+                                                        }
+                                                    },
+                                                    "type": "object",
+                                                    "nullable": true
+                                                },
+                                                "sodium": {
+                                                    "properties": {
+                                                        "value": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 1
+                                                        },
+                                                        "unit": {
+                                                            "type": "string",
+                                                            "example": "mg"
+                                                        },
+                                                        "level": {
+                                                            "type": "string",
+                                                            "example": "low"
+                                                        }
+                                                    },
+                                                    "type": "object",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "guidance": {
+                                            "type": "string",
+                                            "example": "الموز يحتوي على كمية مرتفعة نسبيًا من البوتاسيوم.",
+                                            "nullable": true
+                                        },
+                                        "alternatives": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "User is not a patient"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "404": {
+                        "description": "Food not found"
                     }
                 },
                 "security": [
@@ -2227,49 +2681,6 @@
                 ]
             }
         },
-        "/api/v1/user/medicine_details": {
-            "post": {
-                "tags": [
-                    "PatientMedicationsApiSection"
-                ],
-                "summary": "get Patient Medicine Details",
-                "description": "me",
-                "operationId": "medicineDetails",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/language"
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "required": [
-                                    "patient_medicine_id"
-                                ],
-                                "properties": {
-                                    "patient_medicine_id": {
-                                        "description": "patient medicine  id",
-                                        "type": "number"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "successful operation with status = true and patient medicine object"
-                    }
-                },
-                "security": [
-                    {
-                        "api_key": []
-                    }
-                ]
-            }
-        },
         "/api/v1/user/medications/schedule": {
             "get": {
                 "tags": [
@@ -2347,23 +2758,23 @@
                 ]
             }
         },
-        "/api/v1/user/medications/log/{medicationLog}/taken": {
-            "post": {
+        "/api/v1/user/medicine_details": {
+            "get": {
                 "tags": [
                     "PatientMedicationsApiSection"
                 ],
-                "summary": "mark patient medicine taken",
-                "description": "markTaken",
-                "operationId": "markTaken",
+                "summary": "get Patient Medicine Details",
+                "description": "me",
+                "operationId": "medicineDetails",
                 "parameters": [
                     {
-                        "name": "medicationLog",
+                        "name": "patientMedication",
                         "in": "path",
-                        "description": "Patient Medicine Log ID (Log_id)",
+                        "description": "Patient medication ID.",
                         "required": true,
                         "schema": {
                             "type": "integer",
-                            "example": 7
+                            "example": 7699
                         }
                     },
                     {
@@ -2372,7 +2783,177 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "successful operation with status = true and patient medicine object"
+                        "description": "Patient medication details retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "medicine": {
+                                                    "$ref": "#/components/schemas/PatientMedicineDetails"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "status": false,
+                                    "message": "Unauthenticated."
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Patient medication not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "status": false,
+                                    "message": "Patient medication not found."
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/medications/logs/{medicationLog}/taken": {
+            "post": {
+                "tags": [
+                    "PatientMedicationsApiSection"
+                ],
+                "summary": "Mark medication dose as taken",
+                "description": "Mark a scheduled medication dose as taken for the authenticated patient. The response includes the updated medication log and the patient's medication adherence summary.",
+                "operationId": "markMedicationLogTaken",
+                "parameters": [
+                    {
+                        "name": "medicationLog",
+                        "in": "path",
+                        "description": "Medication log ID belonging to the authenticated patient.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 101
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/language"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Medication dose marked as taken successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "medication_log": {
+                                                    "$ref": "#/components/schemas/MedicationLog"
+                                                },
+                                                "adherence": {
+                                                    "properties": {
+                                                        "total": {
+                                                            "type": "integer",
+                                                            "example": 5
+                                                        },
+                                                        "taken": {
+                                                            "type": "integer",
+                                                            "example": 4
+                                                        },
+                                                        "percentage": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 80
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "status": false,
+                                    "message": "Unauthenticated."
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Medication log does not belong to the authenticated patient.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "status": false,
+                                    "message": "Unauthorized."
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Medication log not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "status": false,
+                                    "message": "Medication log not found."
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Medication dose cannot be marked as taken in its current state."
+                    },
+                    "422": {
+                        "description": "Medication dose cannot be taken yet.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "status": false,
+                                    "message": "Medication dose is scheduled for a future time."
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -2387,18 +2968,18 @@
                 "tags": [
                     "PatientMedicationsApiSection"
                 ],
-                "summary": "mark patient medicine snooze",
-                "description": "snooze the medicine",
-                "operationId": "snooze",
+                "summary": "Snooze a medication dose",
+                "description": "Snooze a scheduled medication dose for a predefined number of minutes. Allowed values are 5, 10, 15, 30, or 60 minutes. The response contains the updated medication log including the new snoozed_until time.",
+                "operationId": "snoozeMedicationLog",
                 "parameters": [
                     {
                         "name": "medicationLog",
                         "in": "path",
-                        "description": "Patient Medicine Log ID (Log_id)",
+                        "description": "Medication log ID belonging to the authenticated patient.",
                         "required": true,
                         "schema": {
                             "type": "integer",
-                            "example": 7
+                            "example": 101
                         }
                     },
                     {
@@ -2406,16 +2987,25 @@
                     }
                 ],
                 "requestBody": {
+                    "required": true,
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "required": [
                                     "minutes"
                                 ],
                                 "properties": {
                                     "minutes": {
-                                        "description": "minutes",
-                                        "type": "number"
+                                        "description": "Number of minutes to snooze the medication dose.",
+                                        "type": "integer",
+                                        "example": 15,
+                                        "enum": [
+                                            5,
+                                            10,
+                                            15,
+                                            30,
+                                            60
+                                        ]
                                     }
                                 },
                                 "type": "object"
@@ -2425,7 +3015,93 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "successful operation with status = true and patient medicine object"
+                        "description": "Medication dose snoozed successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "medication_log": {
+                                                    "$ref": "#/components/schemas/MedicationLog"
+                                                },
+                                                "snoozed_until": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2026-10-07T12:15:00+03:00"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "status": false,
+                                    "message": "Unauthenticated."
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Medication log does not belong to the authenticated patient.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "status": false,
+                                    "message": "Unauthorized."
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Medication log not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "status": false,
+                                    "message": "Medication log not found."
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Medication dose cannot be snoozed in its current state.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "status": false,
+                                    "message": "Medication dose cannot be snoozed in its current state."
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid snooze duration.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "status": false,
+                                    "message": "The selected minutes are invalid."
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -2704,15 +3380,15 @@
                 "tags": [
                     "UserApiSection"
                 ],
-                "summary": "me",
-                "description": "me",
+                "summary": "Get authenticated user",
+                "description": "Returns the profile and account information of the currently authenticated user.",
                 "operationId": "me",
                 "responses": {
                     "200": {
-                        "description": "successful operation with status = true and user object"
+                        "description": "Authenticated user retrieved successfully and user object"
                     },
-                    "422": {
-                        "description": "status = true : User not activated || status = false : User not found or password is not correct"
+                    "401": {
+                        "description": "Unauthenticated. A valid access token is required."
                     }
                 },
                 "security": [
@@ -2737,10 +3413,10 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "successful operation with status = true along with message"
+                        "description": "Account deleted successfully"
                     },
-                    "422": {
-                        "description": "notification not found"
+                    "401": {
+                        "description": "Unauthenticated"
                     }
                 },
                 "security": [
@@ -2779,7 +3455,7 @@
                                         "type": "string"
                                     },
                                     "new_password": {
-                                        "description": "Account new password should be at least 6 chars and different from old one",
+                                        "description": "Account new password must satisfy the application's password policy and differ from the old password.",
                                         "type": "string"
                                     },
                                     "new_password_confirmation": {
@@ -3014,7 +3690,7 @@
                     },
                     "mobile": {
                         "description": "user mobile",
-                        "type": "number"
+                        "type": "string"
                     },
                     "password": {
                         "description": "user password",
@@ -3031,7 +3707,9 @@
                     "blood_type",
                     "dialysis_start_date",
                     "dialysis_type",
-                    "sessions_per_week"
+                    "sessions_per_week",
+                    "center_id",
+                    "doctor_id"
                 ],
                 "properties": {
                     "national_id": {
@@ -3174,7 +3852,7 @@
                 "properties": {
                     "mobile": {
                         "description": "user mobile",
-                        "type": "number"
+                        "type": "string"
                     },
                     "password": {
                         "description": "user password",
@@ -3192,11 +3870,11 @@
                 "properties": {
                     "mobile": {
                         "description": "user mobile",
-                        "type": "number"
+                        "type": "string"
                     },
                     "code": {
                         "description": "activation code recieved on either mobile or email",
-                        "type": "number"
+                        "type": "string"
                     }
                 },
                 "type": "object"
@@ -4063,6 +4741,40 @@
                 },
                 "type": "object"
             },
+            "FluidLogResource": {
+                "required": [
+                    "id",
+                    "fluid_type",
+                    "amount_ml",
+                    "fluid_limit",
+                    "recorded_at"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "Transform the resource into an array.",
+                        "type": "integer",
+                        "example": 15
+                    },
+                    "fluid_type": {
+                        "type": "string",
+                        "example": "water"
+                    },
+                    "amount_ml": {
+                        "type": "integer",
+                        "example": 250
+                    },
+                    "fluid_limit": {
+                        "type": "integer",
+                        "example": 1500
+                    },
+                    "recorded_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-10-07T09:30:00+03:00"
+                    }
+                },
+                "type": "object"
+            },
             "FluidLogSummaryResource": {
                 "title": "Fluid Log Summary",
                 "description": "Today's fluid intake summary for the authenticated patient.",
@@ -4213,6 +4925,57 @@
                 },
                 "type": "object"
             },
+            "MedicationLog": {
+                "required": [
+                    "id",
+                    "scheduled_at",
+                    "status",
+                    "status_label",
+                    "taken_at",
+                    "snoozed_until"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 101
+                    },
+                    "scheduled_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-10-07T08:00:00+03:00",
+                        "nullable": true
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "taken",
+                        "enum": [
+                            "pending",
+                            "notified",
+                            "taken",
+                            "snoozed",
+                            "missed",
+                            "skipped"
+                        ]
+                    },
+                    "status_label": {
+                        "type": "string",
+                        "example": "تم تناولها"
+                    },
+                    "taken_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-10-07T08:05:00+03:00",
+                        "nullable": true
+                    },
+                    "snoozed_until": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": null,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
             "PatientMedicationScheduleResource": {
                 "properties": {
                     "log_id": {
@@ -4325,6 +5088,142 @@
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/PatientMedicationScheduleResource"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "PatientMedicineDetails": {
+                "required": [
+                    "id",
+                    "name",
+                    "description",
+                    "important_alert",
+                    "category",
+                    "dosage",
+                    "frequency",
+                    "frequency_label",
+                    "route",
+                    "next_dose_time",
+                    "reminder_times",
+                    "reminder_enabled",
+                    "doctor_name",
+                    "status",
+                    "status_label",
+                    "start_date",
+                    "end_date",
+                    "daily_doses"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "Transform the resource into an array.",
+                        "type": "integer",
+                        "example": 7699
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "فروسيميد"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "مدر للبول يساعد على التخلص من السوائل الزائدة."
+                    },
+                    "important_alert": {
+                        "type": "string",
+                        "example": "يجب الالتزام بالجرعة المحددة من الطبيب.",
+                        "nullable": true
+                    },
+                    "category": {
+                        "type": "string",
+                        "example": "مدرات البول",
+                        "nullable": true
+                    },
+                    "dosage": {
+                        "type": "string",
+                        "example": "40 mg"
+                    },
+                    "frequency": {
+                        "type": "string",
+                        "example": "twice_daily",
+                        "enum": [
+                            "once_daily",
+                            "twice_daily",
+                            "three_times_daily",
+                            "four_times_daily",
+                            "every_12_hours",
+                            "every_8_hours",
+                            "every_6_hours",
+                            "as_needed"
+                        ]
+                    },
+                    "frequency_label": {
+                        "type": "string",
+                        "example": "مرتين يوميًا"
+                    },
+                    "route": {
+                        "description": "Medication administration route.",
+                        "type": "object",
+                        "example": {
+                            "id": 1,
+                            "name": "عن طريق الفم"
+                        },
+                        "nullable": true
+                    },
+                    "next_dose_time": {
+                        "type": "string",
+                        "format": "time",
+                        "example": "08:00",
+                        "nullable": true
+                    },
+                    "reminder_times": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "example": "08:00"
+                        },
+                        "example": [
+                            "08:00",
+                            "20:00"
+                        ]
+                    },
+                    "reminder_enabled": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "doctor_name": {
+                        "type": "string",
+                        "example": "د. أحمد محمد",
+                        "nullable": true
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "active",
+                        "enum": [
+                            "active",
+                            "stopped",
+                            "completed"
+                        ]
+                    },
+                    "status_label": {
+                        "type": "string",
+                        "example": "نشط"
+                    },
+                    "start_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-10-01",
+                        "nullable": true
+                    },
+                    "end_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-12-01",
+                        "nullable": true
+                    },
+                    "daily_doses": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MedicationLog"
                         }
                     }
                 },
@@ -4472,19 +5371,11 @@
                     },
                     "status": {
                         "description": "user status not_verifed,enabled,disabled",
-                        "type": "integer"
+                        "type": "string"
                     },
                     "avatar": {
                         "description": "user avatar url",
                         "type": "string"
-                    },
-                    "country_id": {
-                        "description": "user country_id",
-                        "type": "number"
-                    },
-                    "country": {
-                        "description": "user country",
-                        "type": "object"
                     },
                     "accessToken": {
                         "description": "user Token",
@@ -4501,6 +5392,25 @@
                     "schedule_notification_before": {
                         "description": "schedule_notification_before",
                         "type": "number"
+                    },
+                    "role": {
+                        "description": "User role.",
+                        "type": "string",
+                        "example": "patient"
+                    },
+                    "register_step": {
+                        "description": "Current registration step.",
+                        "type": "string",
+                        "example": "finish"
+                    },
+                    "is_register_end": {
+                        "description": "Whether registration has been completed.",
+                        "type": "integer",
+                        "example": 1,
+                        "enum": [
+                            0,
+                            1
+                        ]
                     }
                 },
                 "type": "object",
@@ -4512,17 +5422,14 @@
                         "mobile": "0592105087",
                         "status": "enabled",
                         "avatar": "http://localhost:8000/uploads/blank.png",
-                        "country_id": 1,
-                        "country": {
-                            "name": "السعودية",
-                            "nationality": "",
-                            "currency": "ريال سعودي"
-                        },
                         "accessToken": "1|9Y7tGIqrsOuvISbXJV67IsMZauA26kE1KoTU04H5",
                         "language": "ar",
                         "activation_code": "1234",
                         "enable_notification": 0,
-                        "schedule_notification_before": 0
+                        "schedule_notification_before": 0,
+                        "role": "patient",
+                        "register_step": "finish",
+                        "is_register_end": 1
                     }
                 }
             }
@@ -4625,6 +5532,10 @@
         {
             "name": "Family Permissions",
             "description": "Family Permissions"
+        },
+        {
+            "name": "Food Assistant",
+            "description": "Food Assistant"
         },
         {
             "name": "Health Measurements",

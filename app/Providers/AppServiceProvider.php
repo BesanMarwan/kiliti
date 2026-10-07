@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Contracts\FoodProviderInterface;
 use App\Models\FluidLog;
 use App\Models\PersonalAccessToken;
 use App\Observers\FluidLogObserver;
+use App\Services\Food\AiFoodProvider;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Auth\Notifications\ResetPassword;
@@ -21,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         FluidLog::observe(FluidLogObserver::class);
+        $this->app->bind(FoodProviderInterface::class, AiFoodProvider::class);
 
     }
 

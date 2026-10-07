@@ -9,6 +9,7 @@ use App\Http\Resources\User\SymptomResource;
 use App\Models\PatientSymptom;
 use App\Models\Symptom;
 use App\Actions\ApiActions;
+use App\Services\SymptomAlertService;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
@@ -18,6 +19,9 @@ use OpenApi\Attributes as OA;
 )]
 class PatientSymptomController extends Controller
 {
+    public function __construct(public SymptomAlertService $symptomAlertService){
+
+    }
     #[OA\Get(
         path: "/api/v1/user/symptoms",
         summary: "Get available symptoms",
@@ -146,8 +150,16 @@ class PatientSymptomController extends Controller
          *     // Send alert to doctor/family
          * }
          */
+        $result = $this->symptomAlertService->handle($patientSymptom);
+        if ($result['should_notify_doctor']) {
+            // send notification (event & listener)
+        }
+        if ($result['should_notify_doctor']) {
+            // send notification
+        }
 
-        return ApiActions::generateResponse(PatientSymptomResource::make($patientSymptom));
+        return $result;
+        return ApiActions::generateResponse(PatientSymptomResource::make($patientSymptom),);
     }
 
 

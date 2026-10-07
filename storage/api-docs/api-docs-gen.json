@@ -52,16 +52,6 @@
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/language"
-                    },
-                    {
-                        "parameter": "name",
-                        "name": "name",
-                        "in": "query",
-                        "description": "search of name center",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
                     }
                 ],
                 "responses": {

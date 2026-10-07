@@ -77,17 +77,6 @@ class GeneralController extends Controller
             new OA\Parameter(
                 ref: "#/components/parameters/language"
             )
-            , new OA\Parameter(
-                parameter: "name",
-                name: "name",
-                description: "search of name center",
-                required: false,
-                in: "query",
-
-                schema: new OA\Schema(
-                    type: "string"
-                )
-            )
         ],
 
         responses: [
@@ -99,7 +88,7 @@ class GeneralController extends Controller
     )]
     public function get_dialysis_centers(Request $request)
     {
-        $centers = DialysisCenter::active()->filter($request)->select('id','name')->whereHas('doctors')->get();
+        $centers = DialysisCenter::active()->select('id','name')->whereHas('doctors')->get();
         $centers = CenterResource::collection($centers);
 
         return ApiActions::generateResponse(compact('centers'));

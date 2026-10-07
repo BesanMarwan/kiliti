@@ -29,8 +29,9 @@ class GeneralController extends Controller
 
        $out->appends($request->all());
         $activeLink=$module;
+        $item = $module;
 
-        return view('admin.general.index', compact('out', 'obj', 'module','activeLink'));
+        return view('admin.general.index', compact('out', 'item','obj', 'module','activeLink'));
     }
     public function show_create($module, Request $request)
     {

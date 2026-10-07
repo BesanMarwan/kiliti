@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
+use App\Enums\MedicationFrequency;
+use App\Traits\HasSearchable;
+use App\Traits\HasStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PatientMedication extends Model
 {
-    use HasFactory;
+    use HasFactory,HasSearchable;
     public $guarded =[];
     protected $appends = [
         'next_dose_time',
@@ -20,7 +24,10 @@ class PatientMedication extends Model
             'end_date' => 'date',
             'reminder_times' => 'array',
             'reminder_enabled' => 'boolean',
+            'frequency' => MedicationFrequency::class,
+
         ];
+
     }
 
 
@@ -79,4 +86,87 @@ class PatientMedication extends Model
 
         return $now->copy()->addDay()->setTimeFromTimeString($this->reminder_times[0]);
     }
+
+
+    public static function getSearchable()
+    {
+
+        return [
+
+
+            'patient_id'=>[
+                'type'=>'select',
+                'operation'=>'has',
+                'relation'=>'patients',
+                'title'=>lng('dashboard.general.patients','المريض'),
+                'options'=>Patient::all(),
+            ],
+
+            'doctor_id'=>[
+                'type'=>'select',
+                'operation'=>'has',
+                'relation'=>'doctors',
+                'title'=>lng('dashboard.general.doctor','الدكتور'),
+                'options'=> Doctor::all(),
+            ],
+
+            'medication_id'=>[
+                'type'=>'select',
+                'operation'=>'has',
+                'relation'=>'medications',
+                'title'=>lng('dashboard.general.medication','اسم الدواء'),
+                'options'=>Patient::all(),
+            ],
+
+            'start_date'=>[
+                'type'=>'date',
+                'operation'=>'range',
+                'title'=>lng('dashboard.patient_medication.start_date','بداية العلاج'),
+            ],
+
+
+            'end_date'=>[
+                'type'=>'date',
+                'operation'=>'range',
+                'title'=>lng('dashboard.patient_medication.end_date','نهاية العلاج'),
+            ],
+
+            'status'=>[
+                'type'=>'select',
+                'operation'=>'=',
+                'title'=>lng('dashboard.general.status','الحالة'),
+                'options'=>self::getStatusArray(),
+            ],
+        ];
+    }
+
+    public static function getStatusArray(){
+        return [
+            'active'=>'نشط',
+            'completed'=>'مكتمل',
+            'stopped'=>'موقوف',
+        ];
+    }
+
+    public function getStatusTitleAttribute()
+    {
+        switch ($this->status){
+            case 'active': return 'نشط';
+            case 'completed': return 'مكتمل';
+            case 'stopped': return 'موقوف';
+            default: return 'غير معروف';
+        }
+    }
+    public function getStatusColorAttribute()
+    {
+        switch ($this->status){
+
+            case 'active': return 'badge-success';
+            case 'completed': return 'badge-info';
+            case 'stopped': return 'badge-danger';
+            default: return 'badge-light';
+        }
+    }
+
+
 }

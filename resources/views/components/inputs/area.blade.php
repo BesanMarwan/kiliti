@@ -3,7 +3,7 @@
     'title'=>'',
     'name'=>$attributes->wire('model')->value()??'',
     'value'=>'',
-    'rows'=>8,
+    'rows'=>3,
     'placeholder'=>'',
     ])
 

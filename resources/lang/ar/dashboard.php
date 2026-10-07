@@ -1,7 +1,7 @@
 <?php
 
 return array (
-  'general' => 
+  'general' =>
   array (
     'name' => 'الاسم',
     'status' => 'الحالة',
@@ -94,7 +94,7 @@ return array (
     'edit_district' => 'تعديل بيانات حي',
     'selsela' => 'سلسلة',
   ),
-  'services' => 
+  'services' =>
   array (
     'category' => 'التصنيف',
     'services' => 'الخدمات',
@@ -105,7 +105,7 @@ return array (
     'nutrition_facts_ar' => 'القيمة الغذائية',
     'nutrition_facts_en' => ' القيمة الغذائية بالانجليزية',
   ),
-  'global_notifications' => 
+  'global_notifications' =>
   array (
     'date' => 'بحث حسب التاريخ',
     'global_notifications' => 'الاشعارات العامة',
@@ -117,7 +117,7 @@ return array (
     'EnterTitle' => 'ادخل العنوان',
     'EnterText' => 'ادخل النص ',
   ),
-  'categories' => 
+  'categories' =>
   array (
     'categories' => 'الأقسام',
     'add_categories_title' => 'اضافة قسم جديد',
@@ -127,11 +127,11 @@ return array (
     'edit_categories' => 'تحرير الفئات',
     'add_category' => 'اضافة قسم جديد',
   ),
-  'catgeories' => 
+  'catgeories' =>
   array (
     'categories' => 'الأقسام',
   ),
-  'contacts' => 
+  'contacts' =>
   array (
     'show' => 'عرض التفاصيل',
     'contact' => 'الدعم الفني',
@@ -140,11 +140,11 @@ return array (
     'SendReplay' => 'ارسال رد',
     'Replay' => ' رد الادارة',
   ),
-  'send_msg' => 
+  'send_msg' =>
   array (
     'send_msg' => 'ارسال رسالة',
   ),
-  'side' => 
+  'side' =>
   array (
     'admins' => 'ادارة المدراء',
     'roles' => 'الصلاحيات',
@@ -159,8 +159,10 @@ return array (
     'pages' => 'الصفحات التعريفية',
     'dashboard' => 'لوحة التحكم',
     'Management' => 'إدارة',
+    'general_medications' => 'الأدوية العامة',
+      'medications' =>'إدارة الأدوية'
   ),
-  'admins' => 
+  'admins' =>
   array (
     'admins' => 'ادارة المدراء',
     'email' => 'البريد الإلكتروني',
@@ -170,14 +172,14 @@ return array (
     'EnterNewPassword' => 'ادخل كلمة المرور الجديدة',
     'edit_admin' => 'تعديل بيانات مدير',
   ),
-  'pages' => 
+  'pages' =>
   array (
     'pages' => 'الصفحات',
     'edit_page' => 'تعديل بيانات صفحة',
     'page_name' => 'اسم الصفحة',
     'pageText' => 'نص الصفحة',
   ),
-  'roles' => 
+  'roles' =>
   array (
     'roles' => 'الصلاحيات',
     'add_new_role' => 'اضافة صلاحية جديدة',
@@ -186,21 +188,21 @@ return array (
     'select_all' => 'اختر الجميع',
     'all_control' => 'اسمح بتحكم كامل بالنظام',
   ),
-  'users' => 
+  'users' =>
   array (
     'users' => 'العملاء',
     'show_details' => 'Details',
   ),
-  'language' => 
+  'language' =>
   array (
     'language' => 'اللغة',
   ),
-  'search' => 
+  'search' =>
   array (
     'from' => 'من',
     'to' => 'الى',
   ),
-  'sms' => 
+  'sms' =>
   array (
     'sms' => 'رسالة قصيرة',
     'all_users' => 'جميع العملاء',
@@ -208,7 +210,7 @@ return array (
   ),
   'users,send_sms' => 'ارسال رسالة نصية',
   'users,enterMsg' => 'ادخل النص',
-  'areas' => 
+  'areas' =>
   array (
     'areas' => 'المناطق',
     'all_cities' => 'عرض المدن',
@@ -220,19 +222,19 @@ return array (
     'show_cities' => 'عرض مدن المنظقة',
     'create_city' => 'اضافة مدينة',
   ),
-  'cities' => 
+  'cities' =>
   array (
     'cities' => 'المدن',
     'districts' => 'عرض أحياء المدينة ',
     'create_cities' => 'إنشاء المدن',
   ),
-  'districts' => 
+  'districts' =>
   array (
     'districts' => 'الأحياء',
     'create_district' => 'اضافة حي جديد',
     'edit_district' => 'تعديل بيانات حي',
   ),
-  'payments' => 
+  'payments' =>
   array (
     'payments' => 'بوابات الدفع',
     'edit_payment' => 'تعديل بيانات بوابة الدفع',

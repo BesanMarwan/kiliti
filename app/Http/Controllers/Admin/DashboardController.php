@@ -2,9 +2,22 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\AdherenceRecord;
+use App\Models\Admin;
 use App\Models\Category;
-use App\Models\Invitation;
+use App\Models\DialysisCenter;
+use App\Models\DialysisSession;
+use App\Models\Doctor;
+use App\Models\FluidAlert;
+use App\Models\FluidLog;
+use App\Models\Patient;
+use App\Models\PatientFamilyMember;
+use App\Models\PatientMedication;
+use App\Models\PatientSymptom;
+use App\Models\Symptom;
 use App\Models\User;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -18,91 +31,256 @@ class DashboardController extends Controller
         if(request()->get('mode') == 'light'){
             session(['mode'=>'light']);
         }
-        $counts=[];
-        $counts[]=[
-            'href'=>'#',
-            'title'=>'مثال 1',
-            'count'=>50,
-            'count_text'=>' مثال',
-            'svg'=>'metronic-Equalizer',
-            'class'=>'col-md-3',
-            'color'=>'danger',
-            'permission'=>'orders.view',
-
-        ];
-        $counts[]=[
-            'href'=>'#',
-            'title'=>'مثال 2',
-            'count'=>60,
-            'count_text'=>' مثال',
-            'svg'=>'metronic-Group',
-            'class'=>'col-md-3',
-            'color'=>'primary',
-            'permission'=>'drivers.view',
-        ];
-        $counts[]=[
-            'href'=>'#',
-            'title'=>'مثال 3',
-            'count'=>20,
-            'count_text'=>' مثال',
-            'icon'=>'fa fa-star',
-            'class'=>'col-md-3',
-            'color'=>'success',
-            'permission'=>'operators.view',
-        ];
-        $counts[]=[
-            'href'=>'#',
-            'title'=>'مثال 4',
-            'count'=>13,
-            'count_text'=>' مثال',
-            'svg'=>'metronic-Trash',
-            'class'=>'col-md-3',
-            'color'=>'info',
-            'permission'=>'companies.view',
-        ];
-
-
-        $data['counts']  =$counts;
-
-
-
-        $data['user_count']             = User::count();
-        $data['user_enabled']           = User::where('status','enabled')->count();
-        $data['user_enabled_percent']   = $data['user_count'] != 0 ? number_format(($data['user_enabled'] / $data['user_count'])*100,2) : 0;
-//
-//        $data['cat_count']                 = Category::count();
-//        $data['cat_enabled']               = Category::active()->count();
-//        $data['cat_enabled_percent']       = $data['cat_count'] != 0 ? number_format(($data['cat_enabled'] / $data['cat_count'])*100,2) : 0;
-//
+        $today = Carbon::today();
 
         /*
-         * Users (Ios and Android) chart
-         */
-        $users                 = $data['user_count'];
-        $users_ios_percent     = $users != 0 ? number_format((User::where('device_type','ios')->count() /$users)*100,2) :0;
-        $users_android_percent = $users != 0 ? number_format((User::where('device_type','android')->count() /$users)*100,2) : 0;
+        |--------------------------------------------------------------------------
+        | Main Statistics
+        |--------------------------------------------------------------------------
+        */
 
-        $users_chart =[
-            'labels'=>[lng('dashboard.general.users_ios','مستخدمين IOS'),lng('dashboard.general.users_android','مستخدمين Android')],
-            'series'=>[$users_ios_percent,$users_android_percent],
-            'total'=>$users,
-        ];
-        $data['users_chart'] =$users_chart;
+        $totalPatients = Patient::count();
 
-   /*
+        $activePatients = Patient::whereHas('user', function ($query) {
+            $query->where('status', 'enabled');
+        })->count();
 
-        Chart Example
-        $ordersPerMonth=[];
-        $start=Carbon::now()->startOfMonth()->subMonths(7);
-        $end=Carbon::now()->startOfMonth();
-        while ($start->lte($end)){
-            $ordersPerMonth[$start->monthName]=Order::whereBetween('order_date',[$start->startOfMonth()->toDateTimeString(),$start->endOfMonth()->toDateTimeString()])->count();
-            $start->startOfMonth()->addMonth();
+        $inactivePatients = $totalPatients - $activePatients;
 
+        $totalDoctors = Doctor::count();
+
+        $totalCenters = DialysisCenter::count();
+
+        $totalCenterStaff = User::where('role', 'center_staff')->count();
+
+        $totalDialysisSessions = DialysisSession::count();
+
+        $totalMedications = PatientMedication::count();
+
+        $totalNotifications = auth()->user()->new_notifications()->count();
+
+        $totalFamilyMembers = PatientFamilyMember::count();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Today's Statistics
+        |--------------------------------------------------------------------------
+        */
+
+        $todayDialysisSessions = DialysisSession::whereDate(
+            'scheduled_at',
+            $today
+        )->count();
+
+        $todayScheduledMedications = PatientMedication::whereDate(
+            'start_date',
+            '<=',
+            $today
+        )->count();
+
+        $todayMedicationTaken = DB::table('medication_logs')
+            ->whereDate('scheduled_at', $today)
+            ->where('status', 'taken')
+            ->count();
+
+        $todayMedicationMissed = DB::table('medication_logs')
+            ->whereDate('scheduled_at', $today)
+            ->where('status', 'missed')
+            ->count();
+
+        $todayFluidAlerts = FluidAlert::whereDate('created_at', $today)->count();
+
+        $todaySymptoms = PatientSymptom::whereDate(
+            'recorded_at',
+            $today
+        )->count();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Patients Requiring Follow Up
+        |--------------------------------------------------------------------------
+        */
+
+        $patientsNeedingFollowUp = Patient::with([
+            'user',
+            'doctors.user',
+            'centers',
+        ])
+            ->where(function ($query) {
+                $query
+                    ->whereHas('adherenceRecords', function ($q) {
+                        $q->where('overall_score', '<', 60);
+                    })
+                    ->orWhereHas('fluidAlerts')
+                    ->orWhereHas('dialysisSessions', function ($q) {
+                        $q->where('status', 'missed');
+                    });
+            })
+            ->latest()
+            ->limit(10)
+            ->get();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Adherence Chart - Last 7 Days
+        |--------------------------------------------------------------------------
+        */
+
+        $adherenceLabels = [];
+        $adherenceData = [];
+
+        for ($i = 6; $i >= 0; $i--) {
+
+            $date = Carbon::today()->subDays($i);
+
+            $adherenceLabels[] = $date->format('D');
+
+            $score = AdherenceRecord::whereDate(
+                'date',
+                $date
+            )->avg('overall_score');
+
+            $adherenceData[] = round($score ?? 0, 1);
         }
-*/
 
-        return view('admin.dashboard',$data);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Dialysis Sessions - Last 7 Days
+        |--------------------------------------------------------------------------
+        */
+
+        $dialysisLabels = [];
+        $dialysisData = [];
+
+        for ($i = 6; $i >= 0; $i--) {
+
+            $date = Carbon::today()->subDays($i);
+
+            $dialysisLabels[] = $date->format('D');
+
+            $dialysisData[] = DialysisSession::whereDate(
+                'scheduled_at',
+                $date
+            )->count();
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Medication Statistics
+        |--------------------------------------------------------------------------
+        */
+
+        $medicationTaken = DB::table('medication_logs')
+            ->where('status', 'taken')
+            ->count();
+
+        $medicationMissed = DB::table('medication_logs')
+            ->where('status', 'missed')
+            ->count();
+
+        $medicationUpcoming = DB::table('medication_logs')
+            ->where('status', 'pending')
+            ->count();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Patient Status
+        |--------------------------------------------------------------------------
+        */
+
+        $patientStatus = [
+            'active' => $activePatients,
+            'inactive' => $inactivePatients,
+        ];
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Recent Dialysis Sessions
+        |--------------------------------------------------------------------------
+        */
+
+        $recentDialysisSessions = DialysisSession::with([
+            'patient.user',
+            'doctor.user',
+            'center',
+        ])
+            ->latest('scheduled_at')
+            ->limit(8)
+            ->get();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Recent Symptoms
+        |--------------------------------------------------------------------------
+        */
+
+//        $recentSymptoms = Symptom::with([
+//            'patientSymptoms.patient.user',
+//        ])
+//            ->latest()
+//            ->limit(8)
+//            ->get();
+
+        $recentSymptoms = PatientSymptom::with([
+            'patient.user',
+            'symptom',
+        ])
+            ->latest('recorded_at')
+            ->limit(8)
+            ->get();
+
+
+        return view('admin.dashboard', compact(
+
+        // Main statistics
+            'totalPatients',
+            'activePatients',
+            'inactivePatients',
+            'totalDoctors',
+            'totalCenters',
+            'totalCenterStaff',
+            'totalDialysisSessions',
+            'totalMedications',
+            'totalNotifications',
+            'totalFamilyMembers',
+
+            // Today
+            'todayDialysisSessions',
+            'todayScheduledMedications',
+            'todayMedicationTaken',
+            'todayMedicationMissed',
+            'todayFluidAlerts',
+            'todaySymptoms',
+
+            // Follow up
+            'patientsNeedingFollowUp',
+
+            // Charts
+            'adherenceLabels',
+            'adherenceData',
+            'dialysisLabels',
+            'dialysisData',
+
+            // Medication
+            'medicationTaken',
+            'medicationMissed',
+            'medicationUpcoming',
+
+            // Patient status
+            'patientStatus',
+
+            // Recent
+            'recentDialysisSessions',
+            'recentSymptoms',
+        ));
 
     }
 
@@ -119,3 +297,4 @@ class DashboardController extends Controller
 
 
 }
+

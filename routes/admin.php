@@ -1,31 +1,25 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminsController;
-use App\Http\Controllers\Admin\AreaController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CenterController;
-use App\Http\Controllers\Admin\CityController;
 use App\Http\Controllers\Admin\ContactController;
-use App\Http\Controllers\Admin\DistrictController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DialysisSessionManagement\DialysisSessionController;
 use App\Http\Controllers\Admin\DoctorController;
 use App\Http\Controllers\Admin\FAQController;
-use App\Http\Controllers\Admin\GeneralController;
 use App\Http\Controllers\Admin\GeneralDataController;
 use App\Http\Controllers\Admin\GLobalNotificationController;
-use App\Http\Controllers\Admin\PatientController;
-use \App\Http\Controllers\Admin\RoleController;
-use App\Http\Controllers\Admin\ServiceController;
-use App\Http\Controllers\Admin\SettingsController;
-use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\LoginController;
+use App\Http\Controllers\Admin\MedicationManagement\MedicationController;
+use App\Http\Controllers\Admin\MedicationManagement\PatientMedicationController;
 use App\Http\Controllers\Admin\PageController;
-use App\Http\Controllers\Admin\PaymentController;
+use App\Http\Controllers\Admin\PatientController;
+use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\SMSController;
+use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
-
-use \App\Http\Controllers\Admin\SMSController;
-
-use \App\Http\Controllers\Admin\LoginController;
-use \App\Http\Controllers\Admin\DashboardController;
-use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 /*
 |--------------------------------------------------------------------------
@@ -186,6 +180,19 @@ Route::middleware(['auth:admin'])->group(callback: function () {
 
     });
 
+//    Route::prefix('general/{module}')->group(function () {
+//        Route::get('', [GeneralController::class, 'index'])->name('system.general.index');
+//        Route::get('create', [GeneralController::class, 'show_create'])->name('system.general.create');
+//        Route::post('create', [GeneralController::class, 'create']);
+//        Route::get('update/{id}', [GeneralController::class, 'show_update'])->name('system.general.update');
+//        Route::post('update/{id}', [GeneralController::class, 'update']);
+//        Route::post('change_status', [GeneralController::class, 'change_status'])->name('system.general.change_status');
+//        Route::post('delete', [GeneralController::class, 'delete'])->name('system.general.delete');
+//        Route::post('activate', [GeneralController::class, 'activate'])->name('system.general.activate');
+//        Route::post('deactivate', [GeneralController::class, 'deactivate'])->name('system.general.deactivate');
+//
+//    });
+
 
 
     //=====================================================================================================
@@ -212,6 +219,56 @@ Route::middleware(['auth:admin'])->group(callback: function () {
         Route::post('update/{id}',   [FAQController::class, 'update'])->middleware('permission:faqs.edit,admin');
         Route::post('delete',        [FAQController::class, 'delete'])->middleware('permission:faqs.delete,admin')->name('system.faq.delete');
     });
+
+
+//=====================================================================================================
+//                   Medications  ROUTRS
+//=====================================================================================================
+
+    /**************************************** Start medications Route ****************************************/
+    Route::prefix('medications/')->middleware('permission:medications.view,admin')->group(function () {
+        Route::get('',               [MedicationController::class, 'index'])->name('system.medications.index');
+        Route::get('/create',        [MedicationController::class, 'create'])->name('system.medications.create');
+        Route::post('store',         [MedicationController::class, 'store'])->middleware('permission:medications.create,admin')->name('system.medications.store');
+        Route::get('update/{id}',    [MedicationController::class, 'showUpdateView'])->middleware('permission:medications.edit,admin')->name('system.medications.update');
+        Route::post('update/{id}',   [MedicationController::class, 'update'])->middleware('permission:medications.edit,admin');
+        Route::post('delete',        [MedicationController::class, 'delete'])->middleware('permission:medications.delete,admin')->name('system.medications.delete');
+        Route::post('/notActivate',  [MedicationController::class, 'deactivate'])->name('system.medications.deactivate');
+        Route::post('/activate',     [MedicationController::class, 'activate'])->name('system.medications.activate');
+    });
+    /**************************************** End medications Route *********************************************/
+
+
+
+    /**************************************** Start Patients medications Route ****************************************/
+    Route::prefix('patient_medications/')->middleware('permission:patient_medications.view,admin')->group(function () {
+        Route::get('',               [PatientMedicationController::class, 'index'])->name('system.patient_medications.index');
+        Route::get('/create',        [PatientMedicationController::class, 'create'])->name('system.patient_medications.create');
+        Route::post('store',         [PatientMedicationController::class, 'store'])->middleware('permission:patient_medications.create,admin')->name('system.patient_medications.store');
+        Route::get('update/{id}',    [PatientMedicationController::class, 'showUpdateView'])->middleware('permission:patient_medications.edit,admin')->name('system.patient_medications.update');
+        Route::post('update/{id}',   [PatientMedicationController::class, 'update'])->middleware('permission:patient_medications.edit,admin');
+        Route::post('stopped',       [PatientMedicationController::class, 'stopped'])->middleware('permission:patient_medications.delete,admin')->name('system.patient_medications.stopped');
+        Route::post('activate',      [PatientMedicationController::class, 'activate'])->name('system.patient_medications.activate');
+    });
+    /**************************************** End Patients medications Route *********************************************/
+
+
+//=====================================================================================================
+//                   Dialysis Sessions  ROUTES
+//=====================================================================================================
+    /**************************************** Start dialysis Sessions Route ****************************************/
+    Route::prefix('dialysis_sessions/')->middleware('permission:dialysis_sessions.view,admin')->group(function () {
+        Route::get('',               [DialysisSessionController::class, 'index'])->name('system.dialysis_sessions.index');
+        Route::get('/create',        [DialysisSessionController::class, 'create'])->name('system.dialysis_sessions.create');
+        Route::post('store',         [DialysisSessionController::class, 'store'])->middleware('permission:dialysis_sessions.create,admin')->name('system.dialysis_sessions.store');
+        Route::get('update/{id}',    [DialysisSessionController::class, 'showUpdateView'])->middleware('permission:dialysis_sessions.edit,admin')->name('system.dialysis_sessions.update');
+        Route::post('update/{id}',   [DialysisSessionController::class, 'update'])->middleware('permission:dialysis_sessions.edit,admin');
+        Route::post('delete',        [DialysisSessionController::class, 'delete'])->middleware('permission:dialysis_sessions.delete,admin')->name('system.dialysis_sessions.delete');
+        Route::post('/notActivate',  [DialysisSessionController::class, 'deactivate'])->name('system.dialysis_sessions.deactivate');
+        Route::post('/activate',     [DialysisSessionController::class, 'activate'])->name('system.dialysis_sessions.activate');
+    });
+    /**************************************** End dialysis Sessions Route *********************************************/
+
 
 
 

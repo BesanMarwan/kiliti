@@ -11,6 +11,7 @@ use App\Rules\PasswordPolicy;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use OpenApi\Attributes as OA;
 
@@ -20,18 +21,18 @@ class UserController extends Controller
         path: "/api/v1/user/me",
         operationId: "me",
         tags: ["UserApiSection"],
-        summary: "me",
-        description: "me",
+        summary: "Get authenticated user",
+        description: "Returns the profile and account information of the currently authenticated user.",
         security: [["api_key" => []]],
         responses: [
             new OA\Response(
                 response: 200,
-                description: "successful operation with status = true and user object"
+                description: "Authenticated user retrieved successfully and user object"
             ),
 
             new OA\Response(
-                response: 422,
-                description: "status = true : User not activated || status = false : User not found or password is not correct"
+                response: 401,
+                description: "Unauthenticated. A valid access token is required."
             )
         ]
     )]
@@ -60,20 +61,23 @@ class UserController extends Controller
         responses: [
             new OA\Response(
                 response: 200,
-                description: "successful operation with status = true along with message"
+                description: "Account deleted successfully"
             ),
-
             new OA\Response(
-                response: 422,
-                description: "notification not found"
-            )
+                response: 401,
+                description: "Unauthenticated"
+            ),
         ]
     )]
     public function delete_me(Request $request)
     {
         $user = \auth()->user();
-        $user->delete();
-        return ApiActions::generateResponse();
+        DB::transaction(function () use ($user) {
+            $user->tokens()->delete();
+            $user->delete();
+        });
+
+        return ApiActions::generateResponse(null, 'account_deleted');
     }
 
     #[OA\Post(
@@ -102,7 +106,7 @@ class UserController extends Controller
 
                         new OA\Property(
                             property: "new_password",
-                            description: "Account new password should be at least 6 chars and different from old one",
+                            description: "Account new password must satisfy the application's password policy and differ from the old password.",
                             type: "string"
                         ),
 

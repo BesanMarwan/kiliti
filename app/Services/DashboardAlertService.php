@@ -160,7 +160,7 @@ class DashboardAlertService
 
         $symptom = $symptoms->first();
 
-        $symptomName = $symptom->symptom?->name ?? 'عرض صحي';
+        $symptomName = $symptom->symptom?->title ?? 'عرض صحي';
 
         return collect([
             $this->makeAlert(

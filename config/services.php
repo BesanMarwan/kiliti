@@ -35,4 +35,19 @@ return [
         ],
     ],
 
+    'openai' => [
+        'model' => env('OPENAI_MODEL', 'gpt-5'),
+    ],
+
+    'gemini' => [
+        'api_key' => env('GOOGLE_API_KEY'),
+    ],
+
+    'pollinations' => [
+        'api_key' => env('POLLINATIONS_API_KEY','sk_nuncRBCMwQdFUZbkKbPxhbuEAfCjZp7W'),
+    ],
+    'google_translate' => [
+        'project_id' => env('GOOGLE_CLOUD_PROJECT_ID'),
+    ],
+
 ];

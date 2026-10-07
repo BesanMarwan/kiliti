@@ -21,7 +21,7 @@ class DialysisSessionIssueController extends Controller
     #[OA\Post(
         path: "/api/v1/user/dialysis-sessions/{dialysisSession}/issues",
         summary: "Report an issue during a dialysis session",
-        security: [["sanctum" => []]],
+        security: [["api_key" => []]],
         tags: ["Dialysis Session Issues"]
     )]
     #[OA\Parameter(
@@ -122,7 +122,7 @@ class DialysisSessionIssueController extends Controller
     #[OA\Get(
         path: "/api/v1/user/dialysis-sessions/{dialysisSession}/issues",
         summary: "Get issues reported during a dialysis session",
-        security: [["sanctum" => []]],
+        security: [["api_key" => []]],
         tags: ["Dialysis Session Issues"]
     )]
     #[OA\Parameter(
@@ -171,7 +171,7 @@ class DialysisSessionIssueController extends Controller
     #[OA\Get(
         path: "/api/v1/user/dialysis-session-issues/history",
         summary: "Get patient's dialysis issues history",
-        security: [["sanctum" => []]],
+        security: [["api_key" => []]],
         tags: ["Dialysis Session Issues"]
     )]
     #[OA\Parameter(
@@ -186,7 +186,7 @@ class DialysisSessionIssueController extends Controller
         )
     )]
     #[OA\Parameter(
-        name: "reported_at_from_to",
+        name: "reported_at_to",
         description: "End date",
         in: "query",
         required: false,

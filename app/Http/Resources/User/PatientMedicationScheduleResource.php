@@ -115,17 +115,42 @@ class PatientMedicationScheduleResource extends JsonResource
             'medication' => [
                 'id' => $this->patientMedication->medication->id,
                 'name' => $this->patientMedication->medication->name,
+                'name_en' => $this->patientMedication->medication->getTranslation('name','en'),
                 'category' => $this->patientMedication->medication->category?->name,
+                'image' =>$this->image_url,
             ],
 
             'dosage'                  => $this->patientMedication->dosage,
             'frequency'               => $this->patientMedication->frequency,
-            'route'                   => optional($this->patientMedication->routeObj)->name,
+            'frequency_label' => $this->patientMedication->frequency instanceof \BackedEnum ? $this->patientMedication->frequency->label()
+                : match ($this->patientMedication->frequency->frequency) {
+                    'once_daily' => 'مرة يوميًا',
+                    'twice_daily' => 'مرتين يوميًا',
+                    'three_times_daily' => '3 مرات يوميًا',
+                    'four_times_daily' => '4 مرات يوميًا',
+                    'every_12_hours' => 'كل 12 ساعة',
+                    'every_8_hours' => 'كل 8 ساعات',
+                    'every_6_hours' => 'كل 6 ساعات',
+                    'as_needed' => 'عند الحاجة',
+                    default => $this->patientMedication->frequency,
+                },
+            'route'                   => optional($this->patientMedication->routeObj)->name ?? "",
             'instructions'            => $this->patientMedication->instructions,
             'scheduled_at'            => $this->scheduled_at ? $this->scheduled_at->setTimezone('Asia/Gaza')->format('Y-m-d H:i a') : null,
             'taken_at'                => $this->taken_at ? $this->taken_at->setTimezone('Asia/Gaza')->format('Y-m-d H:i') : null,
             'status'                  => $this->status,
+            'status_label' => match ($this->status) {
+                'pending' => 'قادم',
+                'notified' => 'حالي',
+                'taken' => 'مأخوذ',
+                'snoozed' => 'مؤجل',
+                'missed' => 'فائت',
+                'skipped' => 'متخطى',
+                default => $this->status,
+            },
             'snoozed_until'           => $this->snoozed_until ? $this->snoozed_until->setTimezone('Asia/Gaza')->format('Y-m-d H:i') : null,
+            'is_current' => (bool) $this->is_current,
+            'is_next' => (bool) $this->is_next,
         ];
     }
 }

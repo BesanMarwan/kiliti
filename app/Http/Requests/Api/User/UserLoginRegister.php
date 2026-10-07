@@ -16,7 +16,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(
             property: "mobile",
             description: "user mobile",
-            type: "number"
+            type: "string"
         ),
 
         new OA\Property(

@@ -7,6 +7,7 @@ use App\Constants\ResponseCode;
 use App\Http\Controllers\Controller;
 
 use App\Http\Requests\Api\User\PatientMedicationScheduleRequest;
+use App\Http\Resources\User\MedicationLogResource;
 use App\Http\Resources\User\PatientMedicationScheduleResource;
 use App\Http\Resources\User\PatientMedicationScheduleResponseResource;
 use App\Http\Resources\User\PatientMedicineDetailsResource;
@@ -55,61 +56,11 @@ class PatientMedicationController extends Controller
 
         $activeMedications         = $medications->where('status', 'active');
         $data['totalActiveCount']  = $activeMedications->count();
-        $data['totalDailyDoses']   = $activeMedications->sum('frequency');
+//        $data['totalDailyDoses']   = $activeMedications->sum('frequency');
 
         $data['nextDose']    = PatientMedicineResource::make($activeMedications->sortBy('next_dose_time')->first());
         $data['medications'] = PatientMedicineResource::collection($medications);
         return ApiActions::generateResponse($data);
-    }
-
-
-    #[OA\POST(
-        path: "/api/v1/user/medicine_details",
-        operationId: "medicineDetails",
-        tags: ["PatientMedicationsApiSection"],
-        summary: "get Patient Medicine Details",
-        description: "me",
-        security: [["api_key" => []]],
-        requestBody: new OA\RequestBody(
-            content: new OA\MediaType(
-                mediaType: "multipart/form-data",
-                schema: new OA\Schema(
-                    required: ["patient_medicine_id"],
-                    properties: [
-                        new OA\Property(
-                            property: "patient_medicine_id",
-                            description: "patient medicine  id",
-                            type: "number"
-                        )
-                    ]
-                )
-            )
-        ),
-        parameters: [
-            new OA\Parameter(
-                ref: "#/components/parameters/language"
-            )
-        ],
-        responses: [
-            new OA\Response(
-                response: 200,
-                description: "successful operation with status = true and patient medicine object"
-            ),
-
-        ]
-    )]
-    public function medicineDetails(Request $request){
-
-        $patientId       = \auth()->user()->patient->id;
-
-        $request->validate([
-            'patient_medicine_id' => ['required',' numeric',Rule::exists('patient_medications','id')->where('patient_id', $patientId)]
-        ]);
-
-
-        $patientMedicine = PatientMedication::where('patient_id',$patientId)->findOrFail($request->patient_medicine_id);
-        $patientMedicine = PatientMedicineDetailsResource::make($patientMedicine);
-        return ApiActions::generateResponse($patientMedicine);
     }
 
 
@@ -197,21 +148,58 @@ class PatientMedicationController extends Controller
         $patient = $request->user()->patient;
 
         if (!$patient) {
-            return ApiActions::generateResponse(null, 'patient_profile_not_found.', ResponseCode::NOT_FOUND);
+            return ApiActions::generateResponse(
+                null,
+                'patient_profile_not_found.',
+                ResponseCode::NOT_FOUND
+            );
         }
 
-        $date = $request->filled('date') ? Carbon::parse($request->date, 'Asia/Gaza') : now('Asia/Gaza');
+        $timezone = 'Asia/Gaza';
+
+        /*
+        |--------------------------------------------------------------------------
+        | Requested local date
+        |--------------------------------------------------------------------------
+        */
+
+        $date = $request->filled('date')
+            ? Carbon::createFromFormat(
+                'Y-m-d',
+                $request->input('date'),
+                $timezone
+            )->startOfDay()
+            : now($timezone)->startOfDay();
 
         $period = $request->input('period', 'all');
 
         /*
         |--------------------------------------------------------------------------
-        | Get ALL daily logs first
+        | Local day boundaries -> UTC
+        |--------------------------------------------------------------------------
+        */
+
+        $startUtc = $date
+            ->copy()
+            ->startOfDay()
+            ->utc();
+
+        $endUtc = $date
+            ->copy()
+            ->endOfDay()
+            ->utc();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Get all logs for the patient's local day
         |--------------------------------------------------------------------------
         */
 
         $dailyLogs = MedicationLog::query()
-            ->whereDate('scheduled_at', $date->toDateString())
+            ->whereBetween('scheduled_at', [
+                $startUtc,
+                $endUtc,
+            ])
             ->whereHas('patientMedication', function ($query) use ($patient) {
                 $query->where('patient_id', $patient->id);
             })
@@ -219,7 +207,18 @@ class PatientMedicationController extends Controller
                 'patientMedication.medication',
                 'patientMedication.routeObj',
             ])
-            ->orderBy('scheduled_at')->get();
+            ->orderBy('scheduled_at')
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Has medications
+        |--------------------------------------------------------------------------
+        */
+
+        $hasMedications = PatientMedication::query()
+            ->where('patient_id', $patient->id)
+            ->exists();
 
         /*
         |--------------------------------------------------------------------------
@@ -229,31 +228,102 @@ class PatientMedicationController extends Controller
 
         $totalDoses = $dailyLogs->count();
 
-        $takenDoses = $dailyLogs->where('status', 'taken')->count();
+        $takenDoses = $dailyLogs
+            ->where('status', 'taken')
+            ->count();
 
-        $adherence = $totalDoses > 0 ? round(($takenDoses / $totalDoses) * 100) : 0;
+        $adherence = $totalDoses > 0
+            ? round(($takenDoses / $totalDoses) * 100)
+            : 0;
 
         /*
         |--------------------------------------------------------------------------
-        | Filter period AFTER calculating adherence
+        | Overdue
         |--------------------------------------------------------------------------
         */
 
-        $logs = $dailyLogs->filter(function ($log) use ($period) {
+        $now = now($timezone);
 
-            if ($period === 'all') {
-                return true;
+        $overdueCount = $dailyLogs
+            ->filter(function ($log) use ($now,$timezone) {
+                $scheduledAt = $log->scheduled_at->copy()->setTimezone($timezone);
+
+                return $scheduledAt->lt($now)
+                    && in_array($log->status, [
+                        'pending',
+                        'notified',
+                        'snoozed',
+                    ], true);
+            })
+            ->count();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Filter period
+        |--------------------------------------------------------------------------
+        */
+
+        $logs = $dailyLogs
+            ->filter(function ($log) use ($period, $timezone) {
+
+                if ($period === 'all') {
+                    return true;
+                }
+
+                $scheduledAt = $log->scheduled_at
+                    ->copy()
+                    ->setTimezone($timezone);
+
+                $hour = $scheduledAt->hour;
+
+                return match ($period) {
+                    'morning' => $hour >= 5 && $hour < 12,
+                    'afternoon' => $hour >= 12 && $hour < 17,
+                    'evening' => $hour >= 17 && $hour < 24,
+                    default => false,
+                };
+            })
+            ->values();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Current / Next dose
+        |--------------------------------------------------------------------------
+        */
+
+        $currentLogId = null;
+        $nextLogId = null;
+
+        foreach ($dailyLogs as $log) {
+
+            $scheduledAt = $log->scheduled_at
+                ->copy()
+                ->setTimezone($timezone);
+
+            if (
+                !$currentLogId &&
+                $scheduledAt->lte($now) &&
+                in_array($log->status, [
+                    'pending',
+                    'notified',
+                    'snoozed',
+                ], true)
+            ) {
+                $currentLogId = $log->id;
             }
 
-            $hour = Carbon::parse($log->scheduled_at)->setTimezone('Asia/Gaza')->hour;
-
-            return match ($period) {
-                'morning' => $hour >= 5 && $hour < 12,
-                'afternoon' => $hour >= 12 && $hour < 17,
-                'evening' => $hour >= 17 && $hour < 24,
-                default => true,
-            };
-        })->values();
+            if (
+                !$nextLogId &&
+                $scheduledAt->gt($now) &&
+                in_array($log->status, [
+                    'pending',
+                    'notified',
+                    'snoozed',
+                ], true)
+            ) {
+                $nextLogId = $log->id;
+            }
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -261,11 +331,21 @@ class PatientMedicationController extends Controller
         |--------------------------------------------------------------------------
         */
 
+        $logs->each(function ($log) use ($currentLogId, $nextLogId) {
+            $log->is_current = $log->id === $currentLogId;
+            $log->is_next = $log->id === $nextLogId;
+        });
 
         $data = [
             'date' => $date->toDateString(),
 
+            'timezone' => $timezone,
+
             'period' => $period,
+
+            'has_medications' => $hasMedications,
+
+            'overdue_count' => $overdueCount,
 
             'adherence' => [
                 'total' => $totalDoses,
@@ -273,47 +353,252 @@ class PatientMedicationController extends Controller
                 'percentage' => $adherence,
             ],
 
-            'medications' => PatientMedicationScheduleResource::collection($logs),
+            'current_log_id' => $currentLogId,
 
+            'next_log_id' => $nextLogId,
+
+            'medications' => PatientMedicationScheduleResource::collection(
+                $logs
+            ),
         ];
 
-        return ApiActions::generateResponse(new PatientMedicationScheduleResponseResource($data));
+        return ApiActions::generateResponse(compact('data'));
     }
 
 
-    #[OA\POST(
-        path: "/api/v1/user/medications/log/{medicationLog}/taken",
-        operationId: "markTaken",
+    #[OA\Get(
+        path: "/api/v1/user/medicine_details",
+        operationId: "medicineDetails",
         tags: ["PatientMedicationsApiSection"],
-        summary: "mark patient medicine taken",
-        description: "markTaken",
+        summary: "get Patient Medicine Details",
+        description: "me",
         security: [["api_key" => []]],
         parameters: [
             new OA\Parameter(
-                name: "medicationLog",
-                description: "Patient Medicine Log ID (Log_id)",
+                name: "patientMedication",
+                description: "Patient medication ID.",
                 in: "path",
                 required: true,
                 schema: new OA\Schema(
                     type: "integer",
-                    example: 7
+                    example: 7699
                 )
             ),
+
             new OA\Parameter(
                 ref: "#/components/parameters/language"
-            )
+            ),
         ],
         responses: [
             new OA\Response(
                 response: 200,
-                description: "successful operation with status = true and patient medicine object"
+                description: "Patient medication details retrieved successfully.",
+                content: new OA\JsonContent(
+                    type: "object",
+                    properties: [
+                        new OA\Property(
+                            property: "status",
+                            type: "boolean",
+                            example: true
+                        ),
+
+                        new OA\Property(
+                            property: "data",
+                            type: "object",
+                            properties: [
+                                new OA\Property(
+                                    property: "medicine",
+                                    ref: "#/components/schemas/PatientMedicineDetails"
+                                ),
+                            ]
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 401,
+                description: "Unauthenticated.",
+                content: new OA\JsonContent(
+                    example: [
+                        "status" => false,
+                        "message" => "Unauthenticated."
+                    ]
+                )
             ),
 
+            new OA\Response(
+                response: 404,
+                description: "Patient medication not found.",
+                content: new OA\JsonContent(
+                    example: [
+                        "status" => false,
+                        "message" => "Patient medication not found."
+                    ]
+                )
+            ),
+
+        ]
+    )]
+    public function medicineDetails(PatientMedication $patientMedication){
+
+        $patient = auth()->user()->patient;
+
+        abort_unless($patient && $patientMedication->patient_id === $patient->id, 404);
+
+        $patientMedicine = PatientMedicineDetailsResource::make($patientMedication);
+
+        $patientMedication->load([
+            'medication',
+            'doctor.user',
+            'medicationLogs' => function ($query) {
+                $query->whereDate('scheduled_at', now('Asia/Gaza')->toDateString())->orderBy('scheduled_at');
+            },
+        ]);
+
+        return ApiActions::generateResponse([
+            'medicine' => new PatientMedicineDetailsResource($patientMedication),
+        ]);
+
+    }
+
+
+
+    #[OA\Post(
+        path: "/api/v1/user/medications/logs/{medicationLog}/taken",
+        operationId: "markMedicationLogTaken",
+        tags: ["PatientMedicationsApiSection"],
+
+        summary: "Mark medication dose as taken",
+
+        description: "Mark a scheduled medication dose as taken for the authenticated patient. The response includes the updated medication log and the patient's medication adherence summary.",
+
+        security: [["api_key" => []]],
+
+        parameters: [
+            new OA\Parameter(
+                name: "medicationLog",
+                description: "Medication log ID belonging to the authenticated patient.",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(
+                    type: "integer",
+                    example: 101
+                )
+            ),
+
+            new OA\Parameter(
+                ref: "#/components/parameters/language"
+            ),
+        ],
+
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Medication dose marked as taken successfully.",
+                content: new OA\JsonContent(
+                    type: "object",
+                    properties: [
+                        new OA\Property(
+                            property: "status",
+                            type: "boolean",
+                            example: true
+                        ),
+
+                        new OA\Property(
+                            property: "data",
+                            type: "object",
+                            properties: [
+                                new OA\Property(
+                                    property: "medication_log",
+                                    ref: "#/components/schemas/MedicationLog"
+                                ),
+
+                                new OA\Property(
+                                    property: "adherence",
+                                    type: "object",
+                                    properties: [
+                                        new OA\Property(
+                                            property: "total",
+                                            type: "integer",
+                                            example: 5
+                                        ),
+
+                                        new OA\Property(
+                                            property: "taken",
+                                            type: "integer",
+                                            example: 4
+                                        ),
+
+                                        new OA\Property(
+                                            property: "percentage",
+                                            type: "number",
+                                            format: "float",
+                                            example: 80
+                                        ),
+                                    ]
+                                ),
+                            ]
+                        ),
+                    ]
+                )
+            ),
+
+            new OA\Response(
+                response: 401,
+                description: "Unauthenticated.",
+                content: new OA\JsonContent(
+                    example: [
+                        "status" => false,
+                        "message" => "Unauthenticated."
+                    ]
+                )
+            ),
+
+            new OA\Response(
+                response: 403,
+                description: "Medication log does not belong to the authenticated patient.",
+                content: new OA\JsonContent(
+                    example: [
+                        "status" => false,
+                        "message" => "Unauthorized."
+                    ]
+                )
+            ),
+
+            new OA\Response(
+                response: 404,
+                description: "Medication log not found.",
+                content: new OA\JsonContent(
+                    example: [
+                        "status" => false,
+                        "message" => "Medication log not found."
+                    ]
+                )
+            ),
+
+            new OA\Response(
+                response: 409,
+                description: "Medication dose cannot be marked as taken in its current state.",
+            ),
+
+            new OA\Response(
+                response: 422,
+                description: "Medication dose cannot be taken yet.",
+                content: new OA\JsonContent(
+                    example: [
+                        "status" => false,
+                        "message" => "Medication dose is scheduled for a future time."
+                    ]
+                )
+            ),
         ]
     )]
     public function markTaken(MedicationLog $medicationLog)
     {
         $this->authorizeLog($medicationLog);
+
+        $now = now('Asia/Gaza');
+
 
         if ($medicationLog->status === 'taken') {
              return ApiActions::generateResponse(null, 'Medication_is_already_marked_as_taken.', ResponseCode::VALIDATION_ERROR);
@@ -327,58 +612,174 @@ class PatientMedicationController extends Controller
             'taken_at' => now(),
             'snoozed_until' => null,
         ]);
-        $medicationLog  = PatientMedicationScheduleResource::make($medicationLog->fresh(['patientMedication.medication']));
+        $patientId = $medicationLog->patientMedication->patient_id;
 
-        return ApiActions::generateResponse($medicationLog);
+        $today = $now->toDateString();
+
+        $todayLogs = MedicationLog::query()
+            ->whereDate('scheduled_at', $today)
+            ->whereHas('patientMedication', function ($query) use ($patientId) {
+                $query->where('patient_id', $patientId);
+            })
+            ->get();
+
+        $total = $todayLogs->count();
+
+        $taken = $todayLogs
+            ->where('status', 'taken')
+            ->count();
+
+        $percentage = $total > 0
+            ? round(($taken / $total) * 100)
+            : 0;
+
+        return ApiActions::generateResponse([
+            'medication_log' => new MedicationLogResource($medicationLog),
+
+            'adherence' => [
+                'total' => $total,
+                'taken' => $taken,
+                'percentage' => $percentage,
+            ],
+        ]);
 
     }
 
 
 
 
-    #[OA\POST(
+    #[OA\Post(
         path: "/api/v1/user/medications/log/{medicationLog}/snooze",
-        operationId: "snooze",
+        operationId: "snoozeMedicationLog",
         tags: ["PatientMedicationsApiSection"],
-        summary: "mark patient medicine snooze",
-        description: "snooze the medicine",
+
+        summary: "Snooze a medication dose",
+
+        description: "Snooze a scheduled medication dose for a predefined number of minutes. Allowed values are 5, 10, 15, 30, or 60 minutes. The response contains the updated medication log including the new snoozed_until time.",
+
         security: [["api_key" => []]],
+
         requestBody: new OA\RequestBody(
-            content: new OA\MediaType(
-                mediaType: "multipart/form-data",
-                schema: new OA\Schema(
-                    required: ["minutes"],
-                    properties: [
-                        new OA\Property(
-                            property: "minutes",
-                            description: "minutes",
-                            type: "number"
-                        )
-                    ]
-                )
+            required: true,
+            content: new OA\JsonContent(
+                required: ["minutes"],
+                properties: [
+                    new OA\Property(
+                        property: "minutes",
+                        description: "Number of minutes to snooze the medication dose.",
+                        type: "integer",
+                        enum: [5, 10, 15, 30, 60],
+                        example: 15
+                    ),
+                ]
             )
         ),
+
         parameters: [
             new OA\Parameter(
                 name: "medicationLog",
-                description: "Patient Medicine Log ID (Log_id)",
+                description: "Medication log ID belonging to the authenticated patient.",
                 in: "path",
                 required: true,
                 schema: new OA\Schema(
                     type: "integer",
-                    example: 7
+                    example: 101
                 )
             ),
+
             new OA\Parameter(
                 ref: "#/components/parameters/language"
-            )
+            ),
         ],
+
         responses: [
             new OA\Response(
                 response: 200,
-                description: "successful operation with status = true and patient medicine object"
+                description: "Medication dose snoozed successfully.",
+                content: new OA\JsonContent(
+                    type: "object",
+                    properties: [
+                        new OA\Property(
+                            property: "status",
+                            type: "boolean",
+                            example: true
+                        ),
+
+                        new OA\Property(
+                            property: "data",
+                            type: "object",
+                            properties: [
+                                new OA\Property(
+                                    property: "medication_log",
+                                    ref: "#/components/schemas/MedicationLog"
+                                ),
+
+                                new OA\Property(
+                                    property: "snoozed_until",
+                                    type: "string",
+                                    format: "date-time",
+                                    example: "2026-10-07T12:15:00+03:00"
+                                ),
+                            ]
+                        ),
+                    ]
+                )
             ),
 
+            new OA\Response(
+                response: 401,
+                description: "Unauthenticated.",
+                content: new OA\JsonContent(
+                    example: [
+                        "status" => false,
+                        "message" => "Unauthenticated."
+                    ]
+                )
+            ),
+
+            new OA\Response(
+                response: 403,
+                description: "Medication log does not belong to the authenticated patient.",
+                content: new OA\JsonContent(
+                    example: [
+                        "status" => false,
+                        "message" => "Unauthorized."
+                    ]
+                )
+            ),
+
+            new OA\Response(
+                response: 404,
+                description: "Medication log not found.",
+                content: new OA\JsonContent(
+                    example: [
+                        "status" => false,
+                        "message" => "Medication log not found."
+                    ]
+                )
+            ),
+
+            new OA\Response(
+                response: 409,
+                description: "Medication dose cannot be snoozed in its current state.",
+                content: new OA\JsonContent(
+                    example: [
+                        "status" => false,
+                        "message" => "Medication dose cannot be snoozed in its current state."
+                    ]
+                )
+            ),
+
+            new OA\Response(
+                response: 422,
+                description: "Invalid snooze duration.",
+                content: new OA\JsonContent(
+                    example: [
+                        "status" => false,
+                        "message" => "The selected minutes are invalid."
+                    ]
+                )
+            ),
         ]
     )]
     public function snooze(Request $request, MedicationLog $medicationLog)
@@ -395,7 +796,7 @@ class PatientMedicationController extends Controller
             return ApiActions::generateResponse(null, 'Medication_is_already_marked_as_taken.', ResponseCode::VALIDATION_ERROR);
         }
 
-        $snoozedUntil = $medicationLog->scheduled_at->addMinutes($request->integer('minutes'));
+        $snoozedUntil = now('Asia/Gaza')->addMinutes($request->integer('minutes'));
 
         $medicationLog->update([
             'status' => 'snoozed',
@@ -404,7 +805,10 @@ class PatientMedicationController extends Controller
 
         $medicationLog->load(['patientMedication.medication', 'patientMedication.routeObj',]);
 
-        return ApiActions::generateResponse(new PatientMedicationScheduleResource($medicationLog));
+        return ApiActions::generateResponse([
+            'medication_log' => new MedicationLogResource($medicationLog),
+            'snoozed_until' => $medicationLog->snoozed_until?->toISOString(),
+        ]);
     }
 
 

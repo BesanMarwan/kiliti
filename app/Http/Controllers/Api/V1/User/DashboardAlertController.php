@@ -5,12 +5,13 @@ namespace App\Http\Controllers\Api\V1\User;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\User\DashboardAlertResource;
 use App\Services\DashboardAlertService;
+use App\Services\SymptomAlertService;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
 class DashboardAlertController extends Controller
 {
-    public function __construct(protected DashboardAlertService $dashboardAlertService) {}
+    public function __construct(protected DashboardAlertService $dashboardAlertService,protected SymptomAlertService $symptomAlertService) {}
 
     #[OA\Get(
         path: '/api/v1/user/dashboard/alerts',
@@ -55,7 +56,7 @@ class DashboardAlertController extends Controller
             return response()->json(['message' => 'Patient profile not found.'], 404);
         }
 
-        $alerts = $this->dashboardAlertService->getForPatient($patient);
+        $alerts       = $this->dashboardAlertService->getForPatient($patient);
 
         return DashboardAlertResource::collection($alerts);
     }

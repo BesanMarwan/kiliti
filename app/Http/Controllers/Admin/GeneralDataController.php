@@ -29,7 +29,7 @@ class GeneralDataController extends Controller
         $module=$item;
         $activeLink=$item;
         $item_text =$this->getSingle($item);
-        return view('admin.general.index', compact('out','item_text','general_item','module','obj', 'item','activeLink'));
+        return view('admin.generalData.index', compact('out','item_text','general_item','module','obj', 'item','activeLink'));
     }
 
 
@@ -43,7 +43,7 @@ class GeneralDataController extends Controller
         $module =$item;
         $activeLink=$item;
 
-        return view('admin.general.create', compact( 'obj','item_object', 'module','activeLink'));
+        return view('admin.generalData.create', compact( 'obj','item_object', 'module','activeLink'));
     }
 
     public function show_update($item,$id, Request $request)
@@ -59,7 +59,7 @@ class GeneralDataController extends Controller
         $activeLink=$item;
 
 
-        return view('admin.general.update', compact( 'out','obj','item_object','activeLink', 'module'));
+        return view('admin.generalData.update', compact( 'out','obj','item_object','activeLink', 'module'));
     }
     public function create($item, GeneralDataRequest $request)
     {

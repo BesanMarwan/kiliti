@@ -105,7 +105,7 @@ class DialysisSessionIssueResource extends JsonResource
 
             'description' => $this->description,
 
-            'reported_at' => $this->reported_at?->toIso8601String(),
+            'reported_at' => $request->reported_at ? now()->parse($request->reported_at) : now('Asia/Gaza'),
 
             'status' => $this->status,
 

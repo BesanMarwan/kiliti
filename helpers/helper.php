@@ -3,6 +3,7 @@
 use Barryvdh\TranslationManager\Models\Translation;
 use Illuminate\Support\Facades\Cache;
 use \Google\Cloud\Translate\V3\Client\TranslationServiceClient;
+use Google\Cloud\Translate\V3\TranslateTextRequest;
 
 function set_if(&$var, $ret = '', $prefix = '')
 {
@@ -85,36 +86,96 @@ function lang($key, $replacements = [], $defult = '',$lang='ar')
 
     return $trns;
 }
+//function translate($text, $targetLanguage)
+//{
+//
+//    /** Uncomment and populate these variables in your code */
+//    // $text = 'The text to translate.'
+//    // $targetLanguage = 'ja';  // Language to translate to
+//    $model = 'base';  // "base" for standard edition, "nmt" for premium
+//    try{
+//        if(cache()->get($text.'__'.$targetLanguage)){
+//            return cache()->get($text.'__'.$targetLanguage);
+//        }
+//        $translate = new \Google\Cloud\Translate\V3\Client\TranslationServiceClient(['key' => 'AIzaSyCb85vm81DOLoPj-3qKSN8EZtDOPnKiwwQ', 'model' => 'base']);
+//        $result = $translate->translate($text, [
+//            'target' => $targetLanguage,
+//            'model' => $model,
+//        ]);
+//
+//        if( isset($result['text'])){
+//            cache()->set($text.'__'.$targetLanguage,$result['text']);
+//            return isset($result['text']) ? $result['text'] : $text;
+//        }
+//
+//        return  $text;
+//    }catch (Exception $exception){
+//        return  $text;
+//
+//    }
+//
+//
+//}
+
+
+
 function translate($text, $targetLanguage)
 {
+    return $text;
 
     /** Uncomment and populate these variables in your code */
     // $text = 'The text to translate.'
     // $targetLanguage = 'ja';  // Language to translate to
-    $model = 'base';  // "base" for standard edition, "nmt" for premium
-    try{
-        if(cache()->get($text.'__'.$targetLanguage)){
-            return cache()->get($text.'__'.$targetLanguage);
-        }
-        $translate = new \Google\Cloud\Translate\V3\Client\TranslationServiceClient(['key' => 'AIzaSyCb85vm81DOLoPj-3qKSN8EZtDOPnKiwwQ', 'model' => 'base']);
-        $result = $translate->translate($text, [
-            'target' => $targetLanguage,
-            'model' => $model,
-        ]);
 
-        if( isset($result['text'])){
-            cache()->set($text.'__'.$targetLanguage,$result['text']);
-            return isset($result['text']) ? $result['text'] : $text;
-        }
-
-        return  $text;
-    }catch (Exception $exception){
-        return  $text;
-
-    }
-
-
+//    $model = 'base';  // "base" for standard edition, "nmt" for premium
+//    $translate = new \Google\Cloud\Translate\V2\TranslateClient(['key' => 'AIzaSyCYLTQJuNfS1kO0dLwB7gaWHPHsrRwEy9w', 'model' => 'base']);
+//    $result = $translate->translate($text, [
+//        'target' => $targetLanguage,
+//        'model' => $model,
+//    ]);
+//
+//    return isset($result['text']) ? $result['text'] : $text;
 }
+
+
+
+//function translate($text, $targetLanguage)
+//{
+//    $text = trim($text);
+//
+//    if ($text === '') {
+//        return $text;
+//    }
+//
+//    $cacheKey = 'translate_' . md5($text . '_' . $targetLanguage);
+//
+//    if (cache()->has($cacheKey)) {
+//        return cache()->get($cacheKey);
+//    }
+//
+//    try {
+//        $translate = new TranslateClient([
+//            'key' => config('services.google_translate.api_key'),
+//        ]);
+//
+//        $result = $translate->translate($text, [
+//            'target' => $targetLanguage,
+//            'model' => 'base',
+//        ]);
+//
+//        $translatedText = $result['text'] ?? $text;
+//
+//        cache()->put($cacheKey, $translatedText, now()->addDays(30));
+//
+//        return $translatedText;
+//
+//    } catch (\Throwable $exception) {
+//        report($exception);
+//
+//        return $text;
+//    }
+//}
+
 function currency()
 {
     return Cache::remember('currency', 500, function () {

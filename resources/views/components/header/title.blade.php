@@ -9,12 +9,13 @@
     <!--begin::Breadcrumb-->
     <ul class="breadcrumb breadcrumb-separatorless fw-bold fs-7 my-1">
         <x-header.breadcrumb-item :href="route('admin.dashboard')">
-            <x-slot name="name">
-                <x-lineawesome-home-solid/>
+            <x-slot name="name" >
 
 
-                {{--                <x-custom-Home class="w-25px svg-fill-muted"/>--}}
+
             </x-slot>
+            <x-lineawesome-home-solid/>
+
             <x-header.breadcrumb-item name="لوحة التحكم" :href="route('admin.dashboard')"/>
 
         </x-header.breadcrumb-item>

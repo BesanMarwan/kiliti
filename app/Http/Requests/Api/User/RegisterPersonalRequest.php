@@ -12,7 +12,7 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: "RegisterPersonal",
     title: "RegisterPersonal",
-    required: ["birth_date", "gender", "blood_type","dialysis_start_date", "dialysis_type", "sessions_per_week"],
+    required: ["birth_date", "gender", "blood_type","dialysis_start_date", "dialysis_type", "sessions_per_week","center_id","doctor_id"],
     properties: [
         new OA\Property(
             property: "national_id",

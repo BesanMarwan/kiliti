@@ -14,12 +14,12 @@ use OpenApi\Attributes as OA;
         new OA\Property(
             property: "mobile",
             description: "user mobile",
-            type: "number"
+            type: "string"
         ),
         new OA\Property(
             property: "code",
             description: "activation code recieved on either mobile or email",
-            type: "number"
+            type: "string"
         ),
     ]
 )]

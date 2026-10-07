@@ -29,5 +29,6 @@ return array (
     'application_rated_before'=>'تم تقييم التطبيق مسبقا',
     'consultation_send_success' => 'تم ارسال الاستشارة بنجاح',
     'dialysis_issue_send_done' => 'تم ارسال المشكله بنجاح',
-    'Health_measurement_created_successfully'=>'تم حفظ القياس بنجاح'
+    'Health_measurement_created_successfully'=>'تم حفظ القياس بنجاح',
+    'fluid_log_not_found'=>'لم يتم تسجيل سوائل اليوم',
 );

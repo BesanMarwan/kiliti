@@ -21,6 +21,7 @@ class Patient extends Model
         'emergency_contact_name',
         'emergency_contact_phone',
         'medical_notes',
+
     ];
 
     protected $hidden = [
@@ -34,6 +35,8 @@ class Patient extends Model
         return [
             'date_of_birth' => 'date',
             'dialysis_start_date' => 'date',
+            'dialysis_days' => 'array',
+            'dialysis_time' => 'datetime:H:i',
         ];
     }
 

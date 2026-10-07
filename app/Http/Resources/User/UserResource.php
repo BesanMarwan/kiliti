@@ -40,7 +40,7 @@ use OpenApi\Attributes as OA;
 
         new OA\Property(
             property: "status",
-            type: "integer",
+            type: "string",
             description: "user status not_verifed,enabled,disabled"
         ),
 
@@ -48,18 +48,6 @@ use OpenApi\Attributes as OA;
             property: "avatar",
             type: "string",
             description: "user avatar url"
-        ),
-
-        new OA\Property(
-            property: "country_id",
-            type: "number",
-            description: "user country_id"
-        ),
-
-        new OA\Property(
-            property: "country",
-            type: "object",
-            description: "user country"
         ),
 
         new OA\Property(
@@ -85,6 +73,28 @@ use OpenApi\Attributes as OA;
             type: "number",
             description: "schedule_notification_before"
         ),
+        new OA\Property(
+            property: "role",
+            type: "string",
+            example: "patient",
+            description: "User role."
+        ),
+
+        new OA\Property(
+            property: "register_step",
+            type: "string",
+            example: "finish",
+            description: "Current registration step."
+        ),
+
+        new OA\Property(
+            property: "is_register_end",
+            type: "integer",
+            enum: [0, 1],
+            example: 1,
+            description: "Whether registration has been completed."
+        ),
+
     ],
 
     example: [
@@ -95,19 +105,14 @@ use OpenApi\Attributes as OA;
             "mobile" => "0592105087",
             "status" => "enabled",
             "avatar" => "http://localhost:8000/uploads/blank.png",
-            "country_id" => 1,
-
-            "country" => [
-                "name" => "السعودية",
-                "nationality" => "",
-                "currency" => "ريال سعودي"
-            ],
-
             "accessToken" => "1|9Y7tGIqrsOuvISbXJV67IsMZauA26kE1KoTU04H5",
             "language" => "ar",
             "activation_code" => "1234",
             "enable_notification" => 0,
-            "schedule_notification_before" => 0
+            "schedule_notification_before" => 0,
+            "role" => "patient",
+            "register_step" => "finish",
+            "is_register_end" => 1,
         ]
     ]
 )]
@@ -124,8 +129,6 @@ class UserResource extends JsonResource
             'mobile' => (string) $this->mobile,
             'status' => (string) $this->status,
             'avatar' => (string) $this->image_url,
-//            'country_id' => (int) $this->country_id,
-//            'country' => $this->country,
             'accessToken' => (string) $this->accessToken,
             'language' => (string) $this->language,
             'activation_code' => (string) $this->activation_code,
@@ -141,14 +144,14 @@ class UserResource extends JsonResource
             $user['patient'] = [
                 'id' => (int) $this->patient->id,
                 'user_id' => (int) $this->patient->user_id,
-                'national_id' =>$this->national_id,
-                'current_job' =>$this->current_job,
-                'address' =>$this->address,
-                'birth_date' => $this->patient->date_of_birth->toDateString(),
+                'national_id' =>$this->patient?->national_id,
+                'current_job' =>$this->patient?->current_job,
+                'address' =>$this->patient?->address,
+                'birth_date' => $this->patient->date_of_birth?->toDateString(),
                 'gender' => $this->patient->gender,
                 'blood_type' => $this->patient->blood_type,
 
-                'dialysis_start_date' => $this->patient->dialysis_start_date->toDateString(),
+                'dialysis_start_date' => $this->patient->dialysis_start_date?->toDateString(),
                 'dialysis_type' => $this->patient->dialysis_type,
                 'sessions_per_week' => $this->patient->sessions_per_week,
                 'daily_fluid_limit' => $this->patient->daily_fluid_limit,

@@ -6,11 +6,7 @@ use App\Actions\ApiActions;
 use App\Actions\ImageActions;
 use App\Constants\ResponseCode;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\User\RegisterCenterInfoRequest;
-use App\Http\Requests\Api\User\RegisterDoctorInfoRequest;
-use App\Http\Requests\Api\User\RegisterFamilyInfoRequest;
 use App\Http\Requests\Api\User\RegisterInitialRequest;
-use App\Http\Requests\Api\User\RegisterMedicalInfoRequest;
 use App\Http\Requests\Api\User\RegisterPersonalRequest;
 use App\Http\Requests\Api\User\UpdateProfileRequest;
 use App\Http\Requests\Api\User\UserLoginRegister;
@@ -106,6 +102,9 @@ class AuthController extends Controller
             $req->status = 'enabled';
             $req->save();
 
+            $req->accessToken = $req->createToken('User_' . $req->id . '_' . Carbon::now()->toDateTimeString())->plainTextToken;
+            $req->save();
+
             $user = UserResource::make($req->fresh());
 
             return ApiActions::generateResponse(compact('user'), 'mobile_verified');
@@ -130,7 +129,7 @@ class AuthController extends Controller
                         new OA\Property(
                             property: "mobile",
                             description: "mobile",
-                            type: "number"
+                            type: "string"
                         )
                     ]
                 )
@@ -159,30 +158,6 @@ class AuthController extends Controller
 
         if (!User::where('mobile', $request->mobile)->where('country_id', $country_id)->exists()) {
             return ApiActions::generateResponse(null, 'no_user_please_register_first', ResponseCode::VALIDATION_ERROR);
-        }
-
-        if ($user = User::where('mobile', $request->mobile)->where('country_id', $country_id)->where('status', '<>', 'not_verified')->first()) {
-            if ($user->reset_code && $user->code_finished_at > Carbon::now()->toDateTimeString()) {
-                $activationCode = rand(1000, 9999);
-                $user->reset_code = $activationCode;
-                $user->code_finished_at = Carbon::now()->addMinutes(config('custom.reset_code_expired_period', 30));
-                $user->save();
-
-                try {
-                    SendSMS::dispatch($user->mobile, lang('api_texts.your_reset_code') . $user->reset_code);
-                } catch (\Exception $e) {
-                }
-
-                if (config('custom.send_sms_via_notification')) {
-                    SendUserNotification::dispatch($user->id, 'sms_message', ['message' => lang('api_texts.your_reset_code') . $user->reset_code]);
-                }
-
-
-                return ApiActions::generateResponse(compact('activationCode'), 'password_reset_code_sended');
-
-            }
-
-
         }
 
         if (User::where('mobile', $request->mobile)->where('country_id', $country_id)->where('status', '<>', 'not_verified')->exists()) {
@@ -256,15 +231,21 @@ class AuthController extends Controller
         if ($user) {
             if (Hash::check($request->password, $user->password)) {
                 $user->last_login = Carbon::now();
+                if ($user->status != 'enabled') {
+                    return ApiActions::generateResponse(compact('user'), 'verify_mobile', ResponseCode::NOT_VERTIFIED);
+                }
                 if (!$user->accessToken) {
                     $user->accessToken = $user->createToken('User_' . $user->id . '_' . Carbon::now()->toDateTimeString())->plainTextToken;
                 }
                 $user->language = app()->getLocale();
                 $user->save();
-                $user = UserResource::make($user);
-                if ($user->status != 'enabled') {
-                    return ApiActions::generateResponse(compact('user'), 'verify_mobile', ResponseCode::NOT_VERTIFIED);
+                if ($request->header('device_key')) {
+                    ApiActions::ChangeUserDevice($request, $user->id);
                 }
+                if ($request->header('device_type')) {
+                    $user->device_type = $request->header('device_type') ?? null;
+                }
+                $user = UserResource::make($user);
 
                 return ApiActions::generateResponse(compact('user'));
             } else {
@@ -304,7 +285,7 @@ class AuthController extends Controller
 
             new OA\Response(
                 response: 422,
-                description: "status = true : User not activated || status = false : User not found or password is not correct"
+                description: "Validation error. The provided registration data is invalid."
             )
         ]
     )]
@@ -324,8 +305,7 @@ class AuthController extends Controller
         $object->register_step='personal';
         $object->is_register_end=0;
         $object->save();
-        $object->accessToken = $object->createToken('User_' . $object->id . '_' . Carbon::now()->toDateTimeString())->plainTextToken;
-        $object->save();
+
 
         if ($request->header('device_key')) {
             ApiActions::ChangeUserDevice($request, $object->id);
@@ -356,7 +336,7 @@ class AuthController extends Controller
         operationId: "complete_register",
         tags: ["AuthanticationApiSection"],
         summary: "Complete User  register personal API ",
-        description: "Complete User register personal returns user object",
+        description: "Completes the patient's personal, medical, dialysis center, and doctor information.",
         requestBody: new OA\RequestBody(
             content: new OA\MediaType(
                 mediaType: "multipart/form-data",
@@ -365,6 +345,7 @@ class AuthController extends Controller
                 )
             )
         ),
+        security: [["api_key" => []]],
         parameters: [
             new OA\Parameter(ref: "#/components/parameters/language"),
             new OA\Parameter(ref: "#/components/parameters/device_key"),
@@ -376,11 +357,12 @@ class AuthController extends Controller
                 response: 200,
                 description: "successful operation with status = true and user object"
             ),
-
             new OA\Response(
                 response: 422,
-                description: "status = true : User not activated || status = false : User not found or password is not correct"
-            )
+                description: "Validation error. The provided personal or medical registration data is invalid."
+            ),
+
+
         ]
     )]
     public function completeRegister(RegisterPersonalRequest $request)
@@ -408,7 +390,7 @@ class AuthController extends Controller
             $patient->user_id       = $user->id;
             $patient->date_of_birth = $request->birth_date;
             $patient->address       = $request->address;
-            $patient->national_id   = $request->current_job;
+            $patient->national_id   = $request->national_id;
             $patient->current_job   = $request->current_job;
             $patient->gender        = $request->gender;
             $patient->blood_type    = $request->blood_type;
@@ -460,7 +442,6 @@ class AuthController extends Controller
             return ApiActions::generateResponse(compact('user'));
         }catch(\Exception $e){
             \DB::rollback();
-            return $e->getMessage();
             return ApiActions::generateResponse(null, $e->getMessage(), ResponseCode::VALIDATION_ERROR);
 
         }
@@ -472,8 +453,8 @@ class AuthController extends Controller
         path: "/api/v1/user/update_profile",
         operationId: "update profile",
         tags: ["AuthanticationApiSection"],
-        summary: "User login API",
-        description: "User login service returns user object",
+        summary: "Update user profile",
+        description: "Updates the authenticated user's profile information.",
         security: [["api_key" => []]],
         requestBody: new OA\RequestBody(
             content: new OA\MediaType(
@@ -499,7 +480,7 @@ class AuthController extends Controller
 
             new OA\Response(
                 response: 422,
-                description: "Validation error"
+                description: "Validation error. The provided profile data is invalid."
             ),
 
             new OA\Response(

@@ -43,7 +43,28 @@ class FluidLogRequest extends FormRequest
     {
        return  [
             'fluid_type' => ['nullable','string'],
-            'amount_ml' => ['required','numeric'],
+           'amount_ml' => ['required', 'integer', 'min:50', 'max:5000', 'multiple_of:50'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+
+            'amount_ml.required' =>
+                'كمية السائل مطلوبة.',
+
+            'amount_ml.integer' =>
+                'كمية السائل يجب أن تكون رقمًا صحيحًا.',
+
+            'amount_ml.min' =>
+                'أقل كمية مسموحة هي 50 مل.',
+
+            'amount_ml.max' =>
+                'أقصى كمية مسموحة هي 5000 مل.',
+
+            'amount_ml.multiple_of' =>
+                'كمية السائل يجب أن تكون من مضاعفات 50 مل.',
         ];
     }
 }

@@ -129,24 +129,27 @@
 
                 <x-sidebar.separator/>
                 <x-sidebar.section name="خصائص النظام"/>
-                <x-sidebar.list href="#" :name="lng('dashboard.side.medications','الأدوية')" :permission="['medications.view']" :active="in_array($activeLink,['medications','general_data'])">--}}
+                <x-sidebar.list href="#" :name="lng('dashboard.side.medications','الأدوية')" :permission="['medications.view']" :active="in_array($activeLink,['medications','drug_categories','patient_medications'])">
                     <x-slot name="svg">
                         <x-lineawesome-briefcase-medical-solid/>
                     </x-slot>
                     <x-slot name="items">
-                        <x-sidebar.list-item  permission="general_data.view" :href="route('system.general.index','drug_categories')" :name="lng('dashboard.side.drug_categories','أقسام الأدوية')" :active="$activeLink=='general'"/><x-sidebar.list-item  permission="admins.view" :href="route('system.roles.index')" :name="lang('dashboard.side.roles')" :active="$activeLink=='roles'"/>
+                        <x-sidebar.list-item  permission="general_data.view" :href="route('system.general.index','drug_categories')" :name="lng('dashboard.side.drug_categories','أقسام الأدوية')" :active="$activeLink=='drug_categories'"/>
+                        <x-sidebar.list-item  permission="medications.view" :href="route('system.medications.index')" :name="lng('dashboard.side.general_medications','الأدوية العامة')" :active="$activeLink=='medications'"/>
+                        <x-sidebar.list-item  permission="patient_medications.view" :href="route('system.patient_medications.index')" :name="lng('dashboard.side.patient_medications','إدارة أدوية المرضى')" :active="$activeLink=='patient_medications'"/>
                     </x-slot>
                  </x-sidebar.list>
 
-                <x-sidebar.list href="#" :name="lng('dashboard.side.dialysis_centers','جلسات الغسيل')" :permission="['dialysis_centers.view']" :active="in_array($activeLink,['dialysis_centers'])">
+                <x-sidebar.list href="#" :name="lng('dashboard.side.dialysis_sessions','إدارة جلسات الغسيل')" :permission="['dialysis_sessions.view']" :active="in_array($activeLink,['dialysis_sessions','dialysis_sessions_issues'])">
                     <x-slot name="svg">
                         <x-lineawesome-briefcase-medical-solid/>
                     </x-slot>
                     <x-slot name="items">
-                        <x-sidebar.list-item  permission="general_data.view" :href="route('system.general.index','drug_categories')" :name="lng('dashboard.side.drug_categories','أقسام الأدوية')" :active="$activeLink=='general_data'"/>
-{{--                        <x-sidebar.list-item  permission="admins.view" :href="route('system.roles.index')" :name="lang('dashboard.side.roles')" :active="$activeLink=='roles'"/>--}}
+                        <x-sidebar.list-item  permission="dialysis_sessions.view" :href="route('system.dialysis_sessions.index')" :name="lng('dashboard.dialysis_sessions.dialysis_sessions','جلسات الغسيل')" :active="$activeLink=='dialysis_sessions'"/>
                     </x-slot>
                 </x-sidebar.list>
+
+
 
                 <x-sidebar.list href="#" :name="lng('dashboard.side.fluid_logs','تتبع السوائل')" :permission="['fluid_logs.view']" :active="in_array($activeLink,['dialysis_centers'])">
                     <x-slot name="svg">

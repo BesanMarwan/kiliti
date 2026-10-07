@@ -20,45 +20,61 @@ use OpenApi\Attributes as OA;
 )]
 class DialysisSessionController extends Controller
 {
+
     #[OA\Get(
         path: "/api/v1/user/dialysis-sessions",
         operationId: "getPatientDialysisSessions",
         tags: ["DialysisSessionsApiSection"],
         summary: "Get Patient Dialysis Sessions",
-        description: "Get the authenticated patient's dialysis sessions within a specified date range.",
+        description: "Get the authenticated patient's dialysis sessions. Use type=upcoming for upcoming sessions or type=past for previous sessions.",
         security: [["api_key" => []]],
-
         parameters: [
             new OA\Parameter(
                 ref: "#/components/parameters/language"
             ),
 
             new OA\Parameter(
+                name: "type",
+                description: "Filter sessions by time.",
+                in: "query",
+                required: false,
+                schema: new OA\Schema(
+                    type: "string",
+                    enum: [
+                        "upcoming",
+                        "past"
+                    ],
+                    default: "upcoming"
+                ),
+                example: "upcoming"
+            ),
+
+            new OA\Parameter(
                 name: "from",
-                description: "Start date in Y-m-d format. Defaults to today.",
+                description: "Start date in Y-m-d format. Optional.",
                 in: "query",
                 required: false,
                 schema: new OA\Schema(
                     type: "string",
                     format: "date",
-                    example: "2026-09-26"
+                    example: "2026-10-01"
                 )
             ),
 
             new OA\Parameter(
                 name: "to",
-                description: "End date in Y-m-d format. Defaults to 30 days from today.",
+                description: "End date in Y-m-d format. Optional.",
                 in: "query",
                 required: false,
                 schema: new OA\Schema(
                     type: "string",
                     format: "date",
-                    example: "2026-10-10"
+                    example: "2026-10-31"
                 )
             ),
         ],
-
         responses: [
+
             new OA\Response(
                 response: 200,
                 description: "Dialysis sessions retrieved successfully.",
@@ -68,6 +84,13 @@ class DialysisSessionController extends Controller
                             property: "status",
                             type: "boolean",
                             example: true
+                        ),
+
+                        new OA\Property(
+                            property: "message",
+                            type: "string",
+                            nullable: true,
+                            example: null
                         ),
 
                         new OA\Property(
@@ -82,6 +105,11 @@ class DialysisSessionController extends Controller
             ),
 
             new OA\Response(
+                response: 401,
+                description: "Unauthenticated."
+            ),
+
+            new OA\Response(
                 response: 404,
                 description: "Patient profile not found."
             ),
@@ -89,7 +117,7 @@ class DialysisSessionController extends Controller
             new OA\Response(
                 response: 422,
                 description: "Validation error."
-            )
+            ),
         ]
     )]
     public function index(DialysisSessionRequest $request)
@@ -97,30 +125,118 @@ class DialysisSessionController extends Controller
         $patient = $request->user()->patient;
 
         if (!$patient) {
-            return ApiActions::generateResponse(null, 'patient_profile_not_found.', ResponseCode::NOT_FOUND);
+            return ApiActions::generateResponse(
+                null,
+                'patient_profile_not_found.',
+                ResponseCode::NOT_FOUND
+            );
         }
 
-        $from = Carbon::parse($request->from(), 'Asia/Gaza')->startOfDay();
-        $to    = Carbon::parse($request->to(), 'Asia/Gaza')->endOfDay();
+        $timezone = 'Asia/Gaza';
 
-        $sessions = DialysisSession::query()
-                            ->where('patient_id', $patient->id)
-                            ->whereBetween('scheduled_at', [$from, $to])
-                            ->with([
-                                'center',
-                                'doctor.user',
-                            ])
-                            ->orderBy('scheduled_at')
-                            ->get();
+        $query = DialysisSession::query()
+            ->where('patient_id', $patient->id)
+            ->with([
+                'center',
+                'doctor.user',
+            ]);
 
-        return ApiActions::generateResponse(DialysisSessionResource::collection($sessions));
+        /*
+        |--------------------------------------------------------------------------
+        | Session Type
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->type === 'upcoming') {
+
+            $query
+                ->whereIn('status', [
+                    'scheduled',
+                    'confirmed',
+                ])
+                ->where(
+                    'scheduled_at',
+                    '>=',
+                    now($timezone)
+                )
+                ->orderBy('scheduled_at');
+
+        } elseif ($request->type === 'past') {
+
+            $query
+                ->whereIn('status', [
+                    'completed',
+                    'missed',
+                    'cancelled',
+                ])
+                ->orderByDesc('scheduled_at');
+
+        } else {
+
+            $query
+                ->orderByDesc('scheduled_at');
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Date Range
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->filled('from')) {
+
+            $from = Carbon::createFromFormat(
+                'Y-m-d',
+                $request->from(),
+                $timezone
+            )->startOfDay();
+
+            $query->where(
+                'scheduled_at',
+                '>=',
+                $from
+            );
+        }
+
+
+        if ($request->filled('to')) {
+
+            $to = Carbon::createFromFormat(
+                'Y-m-d',
+                $request->to(),
+                $timezone
+            )->endOfDay();
+
+            $query->where(
+                'scheduled_at',
+                '<=',
+                $to
+            );
+        }
+
+
+        $sessions = $query->get();
+
+
+        return ApiActions::generateResponse(
+            DialysisSessionResource::collection($sessions)
+        );
     }
+
     #[OA\Get(
         path: "/api/v1/user/dialysis-sessions/next",
         summary: "Get next dialysis session",
         description: "Returns the next upcoming dialysis session for the authenticated patient.",
         security: [["api_key" => []]],
         tags: ["DialysisSessionsApiSection"],
+        parameters: [
+            new OA\Parameter(
+                ref: "#/components/parameters/language"
+            ),
+        ],
+
         responses: [
             new OA\Response(
                 response: 200,
@@ -266,7 +382,10 @@ class DialysisSessionController extends Controller
                 in: "path",
                 required: true,
                 schema: new OA\Schema(type: "integer", example: 15)
-            )
+            ),
+            new OA\Parameter(
+                ref: "#/components/parameters/language"
+            ),
         ],
         responses: [
             new OA\Response(

@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\V1\User\DoctorConsultationController;
 use App\Http\Controllers\Api\V1\User\FamilyInvitationController;
 use App\Http\Controllers\Api\V1\User\FamilyPermissionController;
 use App\Http\Controllers\Api\V1\User\FluidLogController;
+use App\Http\Controllers\Api\V1\User\FoodAssistantController;
+use App\Http\Controllers\Api\V1\User\FoodImageController;
 use App\Http\Controllers\Api\V1\User\HealthMeasurementController;
 use App\Http\Controllers\Api\V1\User\NotificationController;
 use App\Http\Controllers\Api\V1\User\PatientMedicationController;
@@ -67,8 +69,8 @@ Route::group(['middleware' => ['auth:sanctum', 'verified_mobile']], function () 
 
     /*************************** Start Patient Medications **************************/
     Route::get('/my_medicine',                            [PatientMedicationController::class, 'myMedicine']);
-    Route::post('/medicine_details',                      [PatientMedicationController::class, 'medicineDetails']);
     Route::get('medications/schedule',                    [PatientMedicationController::class, 'schedule']);
+    Route::get('/medicine_details/{patientMedication}',   [PatientMedicationController::class, 'medicineDetails']);
     Route::post('medications/log/{medicationLog}/taken',  [PatientMedicationController::class, 'markTaken']);
     Route::post('medications/log/{medicationLog}/snooze', [PatientMedicationController::class, 'snooze']);
 //    Route::get('medicines/adherence',                     [PatientMedicationController::class, 'adherence']);
@@ -140,5 +142,15 @@ Route::group(['middleware' => ['auth:sanctum', 'verified_mobile']], function () 
     Route::get('dashboard/smart-note', [SmartNoteController::class, 'show']);
     Route::get('dashboard/alerts',     [DashboardAlertController::class, 'index']);
 
+
+
+    Route::prefix('food-assistant')->group(function () {
+        Route::get('/search', [FoodAssistantController::class, 'search']);
+    });
+
+
 });
+
+
+Route::get( '/v1/user/food-image', FoodImageController::class )->name('user.food-image');;
 
