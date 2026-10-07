@@ -80,8 +80,9 @@ class UpdateProfileRequest extends FormRequest
      */
     public function rules()
     {
+        $id = $this->id;
         return [
-            'national_id'         => ['required','min:9',Rule::unique('patients','national_id')],
+            'national_id'         => ['required','min:9',Rule::unique('patients','national_id')->ignore($id)],
             'current_job'         => ['required','string'],
             'address'             => ['nullable','string'],
             'name'                => ['required', 'min:3', 'max:255'],
@@ -89,7 +90,7 @@ class UpdateProfileRequest extends FormRequest
             'avatar'              => ['nullable', 'image'],
             'birth_date'          => ['required', 'date','before:today'],
             'gender'              => ['required', Rule::in(["male","female"])],
-            'blood_type'          => ['required', Rule::in(["A+","A-","B+","B-","AB+","AB-","O+","O-"])],
+            'blood_type'          => ['nullable', Rule::in(["A+","A-","B+","B-","AB+","AB-","O+","O-"])],
 
 
         ];
