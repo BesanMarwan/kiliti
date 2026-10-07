@@ -81,7 +81,7 @@ class UpdateProfileRequest extends FormRequest
     public function rules()
     {
         return [
-            'national_id'         => ['required','min:9',Rule::unique('patients','national_id')->ignore(auth()->id())],
+            'national_id'         => ['required','min:9',Rule::unique('patients','national_id')->ignore('user_id',auth()->id())],
             'current_job'         => ['required','string'],
             'address'             => ['nullable','string'],
             'name'                => ['required', 'min:3', 'max:255'],
