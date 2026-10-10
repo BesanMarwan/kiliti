@@ -58,7 +58,7 @@ class PatientMedicationController extends Controller
         $data['totalActiveCount']  = $activeMedications->count();
 //        $data['totalDailyDoses']   = $activeMedications->sum('frequency');
 
-        $data['nextDose']    = PatientMedicineResource::make($activeMedications->sortBy('next_dose_time')->first());
+//        $data['nextDose']    = PatientMedicineResource::make($activeMedications->sortBy('next_dose_time')->first());
         $data['medications'] = PatientMedicineResource::collection($medications);
         return ApiActions::generateResponse($data);
     }

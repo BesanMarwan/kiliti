@@ -16,7 +16,7 @@
         }
     </style>
 
-    @endpush
+@endpush
 @section('content')
 
     <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
@@ -436,49 +436,8 @@
 
                                             {{-- Route --}}
                                             <div class="col-md-6">
+                                                <x-inputs.select name="route" required :title="lng('dashboard.medication.routes','طريقة الاستخدام')" :options="$routes"/>
 
-                                                <label class="form-label required">
-                                                    طريقة الاستخدام
-                                                </label>
-
-                                                <select
-                                                    name="route"
-                                                    class="form-select form-select-solid @error('route') is-invalid @enderror"
-                                                    data-control="select2"
-                                                    data-placeholder="اختر طريقة الاستخدام"
-                                                >
-
-                                                    <option></option>
-
-                                                    <option value="oral" @selected(old('route') === 'oral')}>
-                                                        عن طريق الفم
-                                                    </option>
-
-                                                    <option value="intravenous" @selected(old('route') === 'intravenous')}>
-                                                        وريدي
-                                                    </option>
-
-                                                    <option value="intramuscular" @selected(old('route') === 'intramuscular')}>
-                                                        عضلي
-                                                    </option>
-
-                                                    <option value="subcutaneous" @selected(old('route') === 'subcutaneous')}>
-                                                        تحت الجلد
-                                                    </option>
-
-                                                    <option value="topical" @selected(old('route') === 'topical')}>
-                                                        موضعي
-                                                    </option>
-
-                                                    <option value="inhalation" @selected(old('route') === 'inhalation')}>
-                                                        استنشاق
-                                                    </option>
-
-                                                    <option value="other" @selected(old('route') === 'other')}>
-                                                        أخرى
-                                                    </option>
-
-                                                </select>
 
                                                 @error('route')
                                                 <div class="invalid-feedback d-block">
@@ -1099,24 +1058,6 @@
             };
 
 
-            const routeLabels = {
-
-                oral: 'عن طريق الفم',
-
-                intravenous: 'وريدي',
-
-                intramuscular: 'عضلي',
-
-                subcutaneous: 'تحت الجلد',
-
-                topical: 'موضعي',
-
-                inhalation: 'استنشاق',
-
-                other: 'أخرى'
-
-            };
-
 
             /*
             |--------------------------------------------------------------------------
@@ -1377,6 +1318,8 @@
                 const route =
                     document.querySelector('[name="route"]');
 
+                console.log(route);
+
 
                 const patientText =
                     patientSelect?.selectedOptions[0]?.text ?? '';
@@ -1391,7 +1334,9 @@
                     frequencyLabels[frequency.value] || '—';
 
                 const routeText =
-                    routeLabels[route.value] || '—';
+                    route.value || '—';
+
+
 
 
                 document.getElementById('summary-patient').textContent =

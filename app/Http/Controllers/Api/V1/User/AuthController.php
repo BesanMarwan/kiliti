@@ -498,8 +498,10 @@ class AuthController extends Controller
 
         $user->name  = $request->get('name', $user->name);
         $user->email = $request->get('email', $user->email);
+//        return $request->avatar;
         if ($name = ImageActions::SaveFile($request->avatar)) {
             $user->avatar = $name;
+            $user->save();
         }
         $user->language = app()->getLocale();
         if ($request->mobile) {
@@ -517,13 +519,7 @@ class AuthController extends Controller
                 $user->accessToken = $user->createToken('User_' . $user->id . '_' . Carbon::now()->toDateTimeString())->plainTextToken;
                 $user->save();
 
-                if($user->role == 'patient'){
-                    $patient                 = $user->patient;
-                    $patient->date_of_birth  = $request->birth_date;
-                    $patient->gender         = $request->gender;
-                    $patient->blood_type     = $request->blood_type;
-                    $patient->save();
-                }
+
 
                 try {
                     SendSMS::dispatch($user->mobile, trans('api_texts.your_activation_code') . ' : ' . $activationCode);
@@ -540,6 +536,18 @@ class AuthController extends Controller
                 return ApiActions::generateResponse(compact('user'), 'verify_mobile', ResponseCode::NOT_VERTIFIED);
             }
 
+        }
+
+        if($user->role == 'patient'){
+
+            $patient                 = $user->patient;
+            $patient->date_of_birth  = $request->birth_date;
+            $patient->gender         = $request->gender;
+            $patient->blood_type     = $request->blood_type ?? $user->patient?->blood_type;
+            $patient->address        = $request->address;
+            $patient->national_id    = $request->national_id;
+            $patient->current_job    = $request->current_job;
+            $patient->save();
         }
 
         $user->save();

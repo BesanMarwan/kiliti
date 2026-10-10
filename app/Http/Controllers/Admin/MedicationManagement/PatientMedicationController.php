@@ -18,15 +18,13 @@ class PatientMedicationController extends Controller
 {
     public function index(Request $request){
         $out =  PatientMedication::latest()
-                      ->with(['doctor','patient.user','medication'])
-                      ->filter($request)
-                      ->paginate(20)
-                      ->appends(\request()->all());
+            ->with(['doctor','patient.user','medication'])
+            ->filter($request)
+            ->paginate(20)
+            ->appends(\request()->all());
 
 
         $activeLink ='patient_medications';
-
-
         return view('admin.medicationManagement.patientMedications.index',compact('out','activeLink'));
     }
 
@@ -102,14 +100,14 @@ class PatientMedicationController extends Controller
             ->with('user:id,name')
             ->whereHas('user', function ($query) {
                 $query->where('status', 'enabled');
-            })
-            ->get()
-            ->sortBy(
-                fn ($doctor) => $doctor->user?->name
-            )
+            })->get()->sortBy(fn ($doctor) => $doctor->user?->name)
             ->values();
+
+        $item_cat = GeneralData::with('children')->where('uuid','routes')->firstOrFail();
+
+        $routes = $item_cat->children;
         $activeLink ='patient_medications';
-        return view('admin.medicationManagement.patientMedications.create',compact('activeLink','patients','doctors','medications'));
+        return view('admin.medicationManagement.patientMedications.create',compact('activeLink','routes','patients','doctors','medications'));
     }
 
 
@@ -170,4 +168,17 @@ class PatientMedicationController extends Controller
 
 
     }
+
+    public function adherence(Request $request){
+        $patients =  Patient::latest()
+            ->with(['user'])
+            ->paginate(20)
+            ->appends(\request()->all());
+
+
+
+        $activeLink ='patient_medications';
+        return view('admin.medicationManagement.adherence',compact('patients','activeLink'));
+    }
+
 }
